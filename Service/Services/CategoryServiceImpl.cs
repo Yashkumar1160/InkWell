@@ -2,6 +2,8 @@ using InkWell.Category.DTOs;
 using InkWell.Category.Models;
 using InkWell.Category.Repository.Interfaces;
 using InkWell.Category.Service.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 
 namespace InkWell.Category.Service.Services
@@ -10,11 +12,14 @@ namespace InkWell.Category.Service.Services
     {
         // ICategoryRepository instance
         private ICategoryRepository categoryRepository;
+        
+        private IDistributedCache cache;
 
         // Constructor Dependency Injection 
-        public CategoryServiceImpl(ICategoryRepository repository)
+        public CategoryServiceImpl(ICategoryRepository repository, IDistributedCache cacheService)
         {
             categoryRepository = repository;
+            cache = cacheService;
         }
 
         // Method to create new category (Admin only)
@@ -51,6 +56,9 @@ namespace InkWell.Category.Service.Services
 
             CategoryModel saved = await categoryRepository.AddCategory(newCategory);
           
+            // Invalidate cache
+            await cache.RemoveAsync("all_categories");
+
             return MapCategoryToDTO(saved);
         }
 
@@ -83,6 +91,14 @@ namespace InkWell.Category.Service.Services
         // Method to get all categories
         public async Task<List<CategoryResponseDTO>> GetAllCategories()
         {
+            string cacheKey = "all_categories";
+            string cachedData = await cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<List<CategoryResponseDTO>>(cachedData);
+            }
+
             List<CategoryModel> categories = await categoryRepository.GetAllCategories();
             List<CategoryResponseDTO> result = new List<CategoryResponseDTO>();
 
@@ -91,6 +107,9 @@ namespace InkWell.Category.Service.Services
                 result.Add(MapCategoryToDTO(category));
             }
             
+            var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1) };
+            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+
             return result;
         }
 
@@ -138,6 +157,9 @@ namespace InkWell.Category.Service.Services
 
             CategoryModel updated = await categoryRepository.UpdateCategory(category);
            
+            // Invalidate cache
+            await cache.RemoveAsync("all_categories");
+
             return MapCategoryToDTO(updated);
         }
 
@@ -152,6 +174,9 @@ namespace InkWell.Category.Service.Services
             }
           
             await categoryRepository.DeleteCategory(id);
+
+            // Invalidate cache
+            await cache.RemoveAsync("all_categories");
         }
 
 
@@ -177,6 +202,9 @@ namespace InkWell.Category.Service.Services
 
             Tag saved = await categoryRepository.AddTag(newTag);
             
+            // Invalidate cache
+            await cache.RemoveAsync("all_tags");
+
             return MapTagToDTO(saved);
         }
 
@@ -209,6 +237,14 @@ namespace InkWell.Category.Service.Services
         // Method to get all tags
         public async Task<List<TagResponseDTO>> GetAllTags()
         {
+            string cacheKey = "all_tags";
+            string cachedData = await cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<List<TagResponseDTO>>(cachedData);
+            }
+
             List<Tag> tags = await categoryRepository.GetAllTags();
             List<TagResponseDTO> result = new List<TagResponseDTO>();
 
@@ -217,6 +253,9 @@ namespace InkWell.Category.Service.Services
                 result.Add(MapTagToDTO(tag));
             }
           
+            var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1) };
+            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+
             return result;
         }
 
@@ -245,6 +284,9 @@ namespace InkWell.Category.Service.Services
             }
            
             await categoryRepository.DeleteTag(id);
+
+            // Invalidate cache
+            await cache.RemoveAsync("all_tags");
         }
 
         // Method to add tag to a post

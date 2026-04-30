@@ -18,7 +18,15 @@ var configuration = builder.Configuration;
 // Database service
 builder.Services.AddDbContext<CategoryDbContext>(options =>
 {
-    options.UseSqlServer(configuration.GetConnectionString("CategoryDB"));
+    options.UseNpgsql(configuration.GetConnectionString("CategoryDB"));
+});
+
+
+// Redis Caching
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = configuration["Redis:ConnectionString"];
+    options.InstanceName = "InkWellCategory_";
 });
 
 
@@ -120,7 +128,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CategoryDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
 }
 
 app.Run();
+
