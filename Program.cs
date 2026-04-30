@@ -4,6 +4,7 @@ using InkWell.Newsletter.Repository.Interfaces;
 using InkWell.Newsletter.Repository.Repositories;
 using InkWell.Newsletter.Services.Interfaces;
 using InkWell.Newsletter.Services.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -17,8 +18,23 @@ var configuration = builder.Configuration;
 // Database context
 builder.Services.AddDbContext<NewsletterDbContext>(options =>
 {
-    options.UseSqlServer(configuration.GetConnectionString("NewsletterDB"));
+    options.UseNpgsql(configuration.GetConnectionString("NewsletterDB"));
 });
+
+
+// RabbitMQ with MassTransit
+builder.Services.AddMassTransit(x =>
+{
+    // Add Consumer
+    x.AddConsumer<InkWell.Newsletter.Messaging.Consumers.PostPublishedConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(configuration["RabbitMQ:Host"], "/", h => { });
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 
 // Dependency Injection
 builder.Services.AddScoped<ISubscriberRepository, SubscriberRepositoryImpl>();
@@ -113,7 +129,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<NewsletterDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
 }
 
 app.Run();
+

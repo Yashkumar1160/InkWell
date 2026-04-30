@@ -16,14 +16,10 @@ namespace InkWell.Newsletter.Controllers
         // INewsletterService interface instance
         private INewsletterService newsletterService;
 
-        // IConfiguration instance
-        private IConfiguration configuration;
-
         // Constructor Dependency Injection
-        public NewsletterController(INewsletterService service, IConfiguration config)
+        public NewsletterController(INewsletterService service)
         {
             newsletterService = service;
-            configuration = config;
         }
 
         // POST /api/newsletter/subscribe
@@ -121,32 +117,6 @@ namespace InkWell.Newsletter.Controllers
             {
                 await newsletterService.SendNewsletter(dto);
                 return Ok(new { message = "Newsletter sent successfully." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
-
-        // POST /api/newsletter/notify-post
-        // called internally by Post Service via HttpClient
-        // protected by internal API key not JWT
-        [HttpPost("notify-post")]
-        public async Task<IActionResult> NotifyPost(
-            [FromBody] NewPostNotificationDTO dto,
-            [FromHeader(Name = "X-Internal-Key")] string internalKey)
-        {
-            // verify internal api key
-            string expectedKey = configuration["InternalApi:Key"];
-            if (internalKey != expectedKey)
-            {
-                return Unauthorized(new { message = "Invalid internal key." });
-            }
-
-            try
-            {
-                await newsletterService.SendPostNotification(dto);
-                return Ok(new { message = "Post notification sent." });
             }
             catch (Exception ex)
             {
