@@ -19,7 +19,7 @@ var configuration = builder.Configuration;
 // Database service
 builder.Services.AddDbContext<MediaDbContext>(options =>
 {
-    options.UseSqlServer(configuration.GetConnectionString("MediaDB"));
+    options.UseNpgsql(configuration.GetConnectionString("MediaDB"));
 });
 
 // Dependency Injection
@@ -122,7 +122,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MediaDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
 }
 
 app.Run();
+
