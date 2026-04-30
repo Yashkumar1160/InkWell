@@ -20,7 +20,7 @@ namespace InkWell.Auth.Controllers
         }
 
         
-        // Register (anyone can call this no [Authorize] needed)
+        // Register New User
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
@@ -28,7 +28,7 @@ namespace InkWell.Auth.Controllers
             {
                 AuthResponseDTO result = await authService.Register(dto);
 
-                // Return Ok with token and user info
+                // return Ok with token and user info
                 return Ok(result);
             }
             catch (Exception ex)
@@ -37,7 +37,7 @@ namespace InkWell.Auth.Controllers
             }
         }
 
-        // Login (anyone can call this no [Authorize] needed)
+        // Login User
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
         {
@@ -52,7 +52,8 @@ namespace InkWell.Auth.Controllers
             }
         }
 
-        // [Authorize] needed (Angular must send JWT token in Authorization header)
+
+        // Get Profile
         [HttpGet("profile")]
         [Authorize]
         public async Task<IActionResult> GetProfile()
@@ -64,6 +65,22 @@ namespace InkWell.Auth.Controllers
             object profile = await authService.GetProfile(userId);
             return Ok(profile);
         }
+
+        // Get Public Profile by ID (No login needed)
+        [HttpGet("profile/{id}")]
+        public async Task<IActionResult> GetPublicProfile(int id)
+        {
+            try
+            {
+                object profile = await authService.GetProfile(id);
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
 
         // Logged user can update their profile
         [HttpPut("profile")]
@@ -100,13 +117,14 @@ namespace InkWell.Auth.Controllers
         }
 
 
-        // Change Role (Only ADMIN can call this)
+        // Change Role (ADMIN only)
         [HttpPut("role/{id}")]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> ChangeRole(int id, [FromBody] string role)
         {
             try
             {
+                // change role using authService
                 await authService.ChangeRole(id, role);
                 return Ok(new { message = "Role updated." });
             }
@@ -117,22 +135,26 @@ namespace InkWell.Auth.Controllers
         }
 
 
+
         // Get all users
         [HttpGet("users")]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetAllUsers()
         {
+            // get all users using authService
             List<object> users = await authService.GetAllUsers();
             return Ok(users);
         }
 
-        // Get user by email
+
+        // Get user by specific email
         [HttpGet("users/by-email")]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetByEmail([FromQuery] string email)
         {
             try
             {
+                // get user by email using authService
                 object user = await authService.GetUserByEmail(email);
                 return Ok(user);
             }
@@ -149,6 +171,7 @@ namespace InkWell.Auth.Controllers
         {
             try
             {
+                // get user by specific role using authService
                 List<object> users = await authService.GetUsersByRole(role);
                 return Ok(users);
             }
@@ -167,7 +190,7 @@ namespace InkWell.Auth.Controllers
             return Ok(users);
         }
 
-        // Deactivate account (Only ADMIN can call this)
+        // Deactivate account (ADMIN only)
         [HttpDelete("deactivate/{id}")]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Deactivate(int id)
@@ -177,7 +200,7 @@ namespace InkWell.Auth.Controllers
         }
 
 
-        // Reactivate account (Admin only)
+        // Reactivate account (ADMIN only)
         [HttpPost("reactivate/{id}")]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Reactivate(int id)
@@ -193,7 +216,7 @@ namespace InkWell.Auth.Controllers
             }
         }
 
-        // Delete user from database (Admin only)
+        // Delete user from database (ADMIN only)
         [HttpDelete("delete/{id}")]
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> DeleteUser(int id)

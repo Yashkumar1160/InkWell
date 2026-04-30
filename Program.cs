@@ -16,7 +16,7 @@ var configuration = builder.Configuration;
 // Database Setup
 builder.Services.AddDbContext<AuthDbContext>(options =>
 {
-    options.UseSqlServer(configuration.GetConnectionString("AuthDB"));
+    options.UseNpgsql(configuration.GetConnectionString("AuthDB"));
 });
 
 
@@ -128,7 +128,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
 }
 
 app.Run();
+

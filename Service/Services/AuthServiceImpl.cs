@@ -477,10 +477,13 @@ namespace AuthService.Services.Service
                 new Claim(ClaimTypes.NameIdentifier,user.UserId.ToString()),
                 
                 // email (used for display purpose)
-                new Claim(ClaimTypes.Email,user.Email),
+                new Claim(ClaimTypes.Email, user.Email),
+                
+                // username (used for author name mapping)
+                new Claim(ClaimTypes.Name, user.Username),
                 
                 // role (used for authorization) [Authorize]
-                new Claim(ClaimTypes.Role,user.Role)
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             // Token expires after 24 hrs
