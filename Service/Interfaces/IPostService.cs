@@ -9,13 +9,13 @@ namespace InkWell.Post.Service.Interfaces
     public interface IPostService
     {
         // Method to create new draft post
-        Task<PostResponseDTO> CreatePost(int authorId, CreatePostDTO dto);
+        Task<PostResponseDTO> CreatePost(int authorId, string authorName, CreatePostDTO dto);
 
         // Method to get single post by id
-        Task<PostResponseDTO> GetById(int id);
+        Task<PostResponseDTO> GetById(int id, int currentUserId = 0);
 
         // Method to get single post by slug 
-        Task<PostResponseDTO> GetBySlug(string slug);
+        Task<PostResponseDTO> GetBySlug(string slug, int currentUserId = 0);
 
         // Method to get all posts by author
         Task<List<PostResponseDTO>> GetByAuthor(int authorId);
@@ -47,6 +47,9 @@ namespace InkWell.Post.Service.Interfaces
 
         // Method to change status to ARCHIVED
         Task<PostResponseDTO> ArchivePost(int postId, int authorId);
+        
+        // Method to restore an archived post to draft
+        Task<PostResponseDTO> UnarchivePost(int postId, int authorId);
 
         // Method to delete post 
         Task DeletePost(int postId, int authorId, string callerRole);
@@ -61,10 +64,11 @@ namespace InkWell.Post.Service.Interfaces
         Task IncrementViews(int postId);
 
         // Method to add one like to the post
-        Task LikePost(int postId);
+        Task LikePost(int postId, int actorId);
+
 
         // Method to remove one like from the post
-        Task UnlikePost(int postId);
+        Task UnlikePost(int postId, int actorId);
 
     }
 }

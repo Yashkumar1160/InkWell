@@ -7,6 +7,7 @@ using InkWell.Post.Context;
 using InkWell.Post.Repository.Interfaces;
 using InkWell.Post.Repository.Repositories;
 using InkWell.Post.Service.Interfaces;
+using MassTransit;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +19,26 @@ var configuration = builder.Configuration;
 // Database service
 builder.Services.AddDbContext<PostDbContext>(options =>
 {
-    options.UseSqlServer(configuration.GetConnectionString("PostDB"));
+    options.UseNpgsql(configuration.GetConnectionString("PostDB"));
+    options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
+});
+
+
+// Redis Caching
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = configuration["Redis:ConnectionString"];
+    options.InstanceName = "InkWellPost_";
+});
+
+
+// RabbitMQ with MassTransit
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(configuration["RabbitMQ:Host"], "/", h => { });
+    });
 });
 
 
@@ -56,6 +76,9 @@ builder.Services.AddAuthentication(options =>
 // Authorization
 builder.Services.AddAuthorization();
 
+
+// this registers HttpClient in the DI container
+
 // CORS
 builder.Services.AddCors(options =>
 {
@@ -70,6 +93,7 @@ builder.Services.AddCors(options =>
 // Add Controllers
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 
 // Swagger
 builder.Services.AddSwaggerGen(options =>
@@ -121,7 +145,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PostDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
 }
 
 app.Run();
+

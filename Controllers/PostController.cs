@@ -26,12 +26,13 @@ namespace InkWell.Post.Controllers
         {
             try
             {
-                // get author id from JWT token
+                // get author id and name from JWT token
                 string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 int authorId = int.Parse(idStr);
+                string authorName = User.FindFirstValue(ClaimTypes.Name) ?? "Unknown";
 
                 // Create post
-                PostResponseDTO result = await postService.CreatePost(authorId, dto);
+                PostResponseDTO result = await postService.CreatePost(authorId, authorName, dto);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -42,6 +43,7 @@ namespace InkWell.Post.Controllers
 
         // Anyone can see published posts (no login needed)
         [HttpGet("published")]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> GetPublished()
         {
             // Get publised posts
@@ -55,8 +57,15 @@ namespace InkWell.Post.Controllers
         {
             try
             {
+                // Get current user id from token if they are logged in
+                int userId = 0;
+                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(idStr)) {
+                    userId = int.Parse(idStr);
+                }
+
                 // Increment view count every time someone reads the post
-                PostResponseDTO post = await postService.GetBySlug(slug);
+                PostResponseDTO post = await postService.GetBySlug(slug, userId);
                 await postService.IncrementViews(post.PostId);
                 return Ok(post);
             }
@@ -72,8 +81,15 @@ namespace InkWell.Post.Controllers
         {
             try
             {
+                // Get current user id from token if they are logged in
+                int userId = 0;
+                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (!string.IsNullOrEmpty(idStr)) {
+                    userId = int.Parse(idStr);
+                }
+
                 // Get post by id using post service
-                PostResponseDTO post = await postService.GetById(id);
+                PostResponseDTO post = await postService.GetById(id, userId);
                 return Ok(post);
             }
             catch (Exception ex)
@@ -217,8 +233,10 @@ namespace InkWell.Post.Controllers
         {
             try
             {
-                // Like post using postService
-                await postService.LikePost(id);
+                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                int actorId = int.Parse(idStr);
+
+                await postService.LikePost(id, actorId);
                 return Ok(new { message = "Post liked." });
             }
             catch (Exception ex)
@@ -234,8 +252,11 @@ namespace InkWell.Post.Controllers
         {
             try
             {
+                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                int actorId = int.Parse(idStr);
+
                 //  Remove like using postService
-                await postService.UnlikePost(id);
+                await postService.UnlikePost(id, actorId);
                 return Ok(new { message = "Post unliked." });
             }
             catch (Exception ex)
@@ -256,6 +277,25 @@ namespace InkWell.Post.Controllers
                 int authorId = int.Parse(idStr);
 
                 PostResponseDTO result = await postService.ArchivePost(id, authorId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // Author restores archived post
+        [HttpPut("unarchive/{id}")]
+        [Authorize(Roles = "AUTHOR,ADMIN")]
+        public async Task<IActionResult> Unarchive(int id)
+        {
+            try
+            {
+                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                int authorId = int.Parse(idStr);
+
+                PostResponseDTO result = await postService.UnarchivePost(id, authorId);
                 return Ok(result);
             }
             catch (Exception ex)

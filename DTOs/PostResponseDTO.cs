@@ -5,6 +5,7 @@ namespace InkWell.Post.DTOs
     {
         public int PostId { get; set; }
         public int AuthorId { get; set; }
+        public string AuthorName { get; set; }
         public string Title { get; set; }
         public string Slug { get; set; }
         public string Content { get; set; }
@@ -15,6 +16,7 @@ namespace InkWell.Post.DTOs
         public int ViewCount { get; set; }
         public int LikesCount { get; set; }
         public bool IsFeatured{get;set;}
+        public bool IsLiked { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? PublishedAt { get; set; }
     }

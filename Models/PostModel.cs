@@ -11,6 +11,9 @@ namespace InkWell.Post.Models
         // AuthorId link to UserId in auth service
         public int AuthorId { get; set; }
 
+        // Author Name (Cached for search performance)
+        public string AuthorName { get; set; }
+
         // Post Title
         public string Title { get; set; }
 
@@ -57,6 +60,7 @@ namespace InkWell.Post.Models
             Slug = "";
             Content = "";
             Excerpt = "";
+            AuthorName = "";
             FeaturedImageUrl = "";
             Status = "DRAFT";
             ReadTimeMinutes = 0;

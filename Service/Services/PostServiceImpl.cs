@@ -2,6 +2,10 @@ using InkWell.Post.DTOs;
 using InkWell.Post.Models;
 using InkWell.Post.Repository.Interfaces;
 using InkWell.Post.Service.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
+using MassTransit;
+using InkWell.Shared.Events;
 
 namespace InkWell.Post.Service.Services
 {
@@ -9,15 +13,18 @@ namespace InkWell.Post.Service.Services
     {
         // IPostRepository instance
         private IPostRepository postRepository;
+        private IDistributedCache cache;
+        private IPublishEndpoint publishEndpoint;
 
         // Constructor Dependency Injection
-        public PostServiceImpl(IPostRepository repository)
+        public PostServiceImpl(IPostRepository repository, IDistributedCache cacheService, IPublishEndpoint publish)
         {
             postRepository = repository;
+            cache = cacheService;
+            publishEndpoint = publish;
         }
-
         // Method to create a post 
-        public async Task<PostResponseDTO> CreatePost(int authorId, CreatePostDTO dto)
+        public async Task<PostResponseDTO> CreatePost(int authorId, string authorName, CreatePostDTO dto)
         {
             // Generate slug from title "My First Post" becomes "my-first-post"
             string slug = GenerateSlug(dto.Title);
@@ -31,7 +38,7 @@ namespace InkWell.Post.Service.Services
             }
 
             // Calculate read time from word count
-            int wordCount = dto.Content.Split(' ').Length;
+            int wordCount = string.IsNullOrEmpty(dto.Content) ? 0 : dto.Content.Split(' ').Length;
             int readTime = wordCount / 200;
             if (readTime < 1)
             {
@@ -42,6 +49,7 @@ namespace InkWell.Post.Service.Services
             PostModel newPost = new PostModel
             {
                 AuthorId = authorId,
+                AuthorName = authorName,
                 Title = dto.Title,
                 Slug = slug,
                 Content = dto.Content,
@@ -60,7 +68,7 @@ namespace InkWell.Post.Service.Services
         }
 
         // Method to get post by id
-        public async Task<PostResponseDTO> GetById(int id)
+        public async Task<PostResponseDTO> GetById(int id, int currentUserId = 0)
         {
             // Find post by id using postRepository
             PostModel post = await postRepository.GetById(id);
@@ -71,11 +79,13 @@ namespace InkWell.Post.Service.Services
                 throw new Exception("Post not found.");
             }
 
-            return MapToDTO(post);
+            // check if user liked it
+            bool isLiked = currentUserId > 0 && await postRepository.GetLike(id, currentUserId) != null;
+            return MapToDTO(post, isLiked);
         }
 
         // Method to Get post by slug
-        public async Task<PostResponseDTO> GetBySlug(string slug)
+        public async Task<PostResponseDTO> GetBySlug(string slug, int currentUserId = 0)
         {
             // Get post by slug using postRepository
             PostModel post = await postRepository.GetBySlug(slug);
@@ -83,7 +93,10 @@ namespace InkWell.Post.Service.Services
             {
                 throw new Exception("Post not found.");
             }
-            return MapToDTO(post);
+
+            // check if user liked it
+            bool isLiked = currentUserId > 0 && await postRepository.GetLike(post.PostId, currentUserId) != null;
+            return MapToDTO(post, isLiked);
         }
 
         // Get post by author
@@ -104,17 +117,15 @@ namespace InkWell.Post.Service.Services
         // Method to get post that are published
         public async Task<List<PostResponseDTO>> GetPublished()
         {
-            // Get published posts using postRepository
+            // Fetch directly from database to ensure 100% consistency with likes/views
             List<PostModel> posts = await postRepository.GetPublished();
-
-            // list to store posts
             List<PostResponseDTO> result = new List<PostResponseDTO>();
 
-            // loop to add posts to result
             foreach (PostModel post in posts)
             {
                 result.Add(MapToDTO(post));
             }
+
             return result;
         }
 
@@ -193,7 +204,7 @@ namespace InkWell.Post.Service.Services
             post.UpdatedAt = DateTime.UtcNow;
 
             // Calculate read time after content update
-            int wordCount = dto.Content.Split(' ').Length;
+            int wordCount = string.IsNullOrEmpty(dto.Content) ? 0 : dto.Content.Split(' ').Length;
             int readTime = wordCount / 200;
 
             //if read time is less than 1
@@ -207,34 +218,40 @@ namespace InkWell.Post.Service.Services
             // Update post using postRepository
             PostModel updated = await postRepository.Update(post);
 
+            // Invalidate cache since data changed
+            await cache.RemoveAsync("published_posts");
+
             return MapToDTO(updated);
         }
 
         // Method to publish post (change status to PUBLISHED)
         public async Task<PostResponseDTO> PublishPost(int postId, int authorId)
         {
-            // Get post by id using postRepository
             PostModel post = await postRepository.GetById(postId);
-
             if (post == null)
             {
                 throw new Exception("Post not found.");
             }
 
-            // Check authorId
             if (post.AuthorId != authorId)
             {
                 throw new Exception("You can only publish your own posts.");
             }
 
-            // update status
+            // change status to published
             post.Status = "PUBLISHED";
-
             post.PublishedAt = DateTime.UtcNow;
             post.UpdatedAt = DateTime.UtcNow;
 
-            // Update post
             PostModel updated = await postRepository.Update(post);
+
+            // Invalidate cache so the new post shows up in the list
+            await cache.RemoveAsync("published_posts");
+
+            // now call Newsletter Service to notify subscribers
+            // we do this after saving so the post is definitely published first
+            await NotifyNewsletterService(updated);
+
             return MapToDTO(updated);
         }
 
@@ -285,6 +302,29 @@ namespace InkWell.Post.Service.Services
             return MapToDTO(updated);
         }
 
+        // Method to UNARCHIVE post (restore to DRAFT)
+        public async Task<PostResponseDTO> UnarchivePost(int postId, int authorId)
+        {
+            PostModel post = await postRepository.GetById(postId);
+
+            if (post == null)
+            {
+                throw new Exception("Post not found.");
+            }
+
+            if (post.AuthorId != authorId)
+            {
+                throw new Exception("You can only restore your own posts.");
+            }
+
+            // Restore to DRAFT so author can edit/review before publishing again
+            post.Status = "DRAFT";
+            post.UpdatedAt = DateTime.UtcNow;
+
+            PostModel updated = await postRepository.Update(post);
+            return MapToDTO(updated);
+        }
+
         // Method to delete post
         public async Task DeletePost(int postId, int authorId, string callerRole)
         {
@@ -303,6 +343,12 @@ namespace InkWell.Post.Service.Services
             }
 
             await postRepository.Delete(postId);
+            
+            // Notify other services (Comments, Category) to clean up
+            await publishEndpoint.Publish(new PostDeletedEvent { PostId = postId });
+
+            // Invalidate cache
+            await cache.RemoveAsync("published_posts");
         }
 
         // Method to increase views count
@@ -320,27 +366,64 @@ namespace InkWell.Post.Service.Services
 
             // update post
             await postRepository.Update(post);
+
+            // Invalidate home page cache
+            await cache.RemoveAsync("published_posts");
         }
 
         // Method to increase like count 
-        public async Task LikePost(int postId)
+        public async Task LikePost(int postId, int actorId)
         {
-            // Find post by id 
             PostModel post = await postRepository.GetById(postId);
             if (post == null)
             {
                 throw new Exception("Post not found.");
             }
 
-            // increase likes count
-            post.LikesCount = post.LikesCount + 1;
+            // check if user has already liked this post
+            var existingLike = await postRepository.GetLike(postId, actorId);
+            if (existingLike != null)
+            {
+                // user already liked, don't add another one
+                return;
+            }
 
-            // update post
+            // increment total likes on post
+            post.LikesCount = post.LikesCount + 1;
             await postRepository.Update(post);
+
+            // save the individual like to database
+            await postRepository.AddLike(new LikeModel { PostId = postId, UserId = actorId });
+
+            // Invalidate home page cache so counts are accurate
+            await cache.RemoveAsync("published_posts");
+
+            // notify post author that someone liked their post
+            await NotifyNotificationService(postId, post.AuthorId, actorId);
+        }
+
+        // Method to notify Notification Service via RabbitMQ
+        private async Task NotifyNotificationService(int postId, int postAuthorId, int actorId)
+        {
+            try
+            {
+                // Publish event to RabbitMQ
+                await publishEndpoint.Publish(new PostLikedEvent
+                {
+                    PostId = postId,
+                    PostAuthorId = postAuthorId,
+                    ActorId = actorId
+                });
+            }
+            catch (Exception ex)
+            {
+                // log error but don't fail the request
+                Console.WriteLine($"RabbitMQ Error: {ex.Message}");
+            }
         }
 
         // Method to unlike a post
-        public async Task UnlikePost(int postId)
+        public async Task UnlikePost(int postId, int actorId)
         {
             // Find post by id
             PostModel post = await postRepository.GetById(postId);
@@ -349,12 +432,26 @@ namespace InkWell.Post.Service.Services
                 throw new Exception("Post not found.");
             }
 
+            // Check if user actually liked this post first
+            var existingLike = await postRepository.GetLike(postId, actorId);
+            if (existingLike == null)
+            {
+                // user didn't like this post, so can't unlike
+                return;
+            }
+
             // check if likes are below zero
             if (post.LikesCount > 0)
             {
                 // decrease likes count
                 post.LikesCount = post.LikesCount - 1;
                 await postRepository.Update(post);
+
+                // remove the like record from database
+                await postRepository.RemoveLike(postId, actorId);
+
+                // Invalidate home page cache so counts are accurate
+                await cache.RemoveAsync("published_posts");
             }
         }
 
@@ -399,6 +496,29 @@ namespace InkWell.Post.Service.Services
             return MapToDTO(updated);
         }
 
+
+
+        // Method to notify Newsletter Service via RabbitMQ
+        private async Task NotifyNewsletterService(PostModel post)
+        {
+            try
+            {
+                // Publish event to RabbitMQ
+                await publishEndpoint.Publish(new PostPublishedEvent
+                {
+                    PostId = post.PostId,
+                    Title = post.Title,
+                    Slug = post.Slug,
+                    AuthorId = post.AuthorId
+                });
+            }
+            catch (Exception ex)
+            {
+                // log error but don't fail the request
+                Console.WriteLine($"RabbitMQ Error: {ex.Message}");
+            }
+        }
+
         // Method to generates url safe slug from title
         private string GenerateSlug(string title)
         {
@@ -423,12 +543,13 @@ namespace InkWell.Post.Service.Services
         }
 
         // Method to convert Post model to PostResponseDTO
-        private PostResponseDTO MapToDTO(PostModel post)
+        private PostResponseDTO MapToDTO(PostModel post, bool isLiked = false)
         {
             PostResponseDTO dto = new PostResponseDTO
             {
                 PostId = post.PostId,
                 AuthorId = post.AuthorId,
+                AuthorName = post.AuthorName,
                 Title = post.Title,
                 Slug = post.Slug,
                 Content = post.Content,
@@ -439,10 +560,12 @@ namespace InkWell.Post.Service.Services
                 ViewCount = post.ViewCount,
                 LikesCount = post.LikesCount,
                 IsFeatured = post.IsFeatured,
+                IsLiked = isLiked,
                 CreatedAt = post.CreatedAt,
                 PublishedAt = post.PublishedAt
             };
             return dto;
         }
+
     }
 }

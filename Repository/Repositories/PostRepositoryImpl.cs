@@ -65,11 +65,17 @@ namespace InkWell.Post.Repository.Repositories
             return posts;
         }
 
-        // Method to search posts where title contains specific keyword
+        // Method to search posts where title, content or excerpt contains specific keyword
         public async Task<List<PostModel>> SearchByTitle(string keyword)
         {
-            // Find posts in database where status is PUBLISHED and title contains the keyword
-            List<PostModel> posts = await dbContext.Posts.Where(p => p.Title.Contains(keyword) && p.Status == "PUBLISHED")
+            // Find posts in database where status is PUBLISHED and any field contains the keyword
+            // We use ILike for PostgreSQL to get case-insensitive search
+            List<PostModel> posts = await dbContext.Posts
+                .Where(p => p.Status == "PUBLISHED" && 
+                    (EF.Functions.ILike(p.Title, $"%{keyword}%") || 
+                     EF.Functions.ILike(p.Content, $"%{keyword}%") || 
+                     EF.Functions.ILike(p.AuthorName, $"%{keyword}%") || 
+                     EF.Functions.ILike(p.Excerpt, $"%{keyword}%")))
                 .OrderByDescending(p => p.PublishedAt).ToListAsync();
             return posts;
         }
@@ -143,6 +149,27 @@ namespace InkWell.Post.Repository.Repositories
             // find post by slug 
             bool exists = await dbContext.Posts.AnyAsync(p => p.Slug == slug);
             return exists;
+        }
+
+        public async Task<LikeModel> GetLike(int postId, int userId)
+        {
+            return await dbContext.Likes.FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
+        }
+
+        public async Task AddLike(LikeModel like)
+        {
+            await dbContext.Likes.AddAsync(like);
+            await dbContext.SaveChangesAsync();
+        }
+
+        public async Task RemoveLike(int postId, int userId)
+        {
+            var like = await dbContext.Likes.FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userId);
+            if (like != null)
+            {
+                dbContext.Likes.Remove(like);
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 }

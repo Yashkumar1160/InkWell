@@ -44,5 +44,9 @@ namespace InkWell.Post.Repository.Interfaces
 
         // Check if slug already exists
         Task<bool> SlugExists(string slug);
+
+        Task<LikeModel> GetLike(int postId, int userId);
+        Task AddLike(LikeModel like);
+        Task RemoveLike(int postId, int userId);
     }
 }
