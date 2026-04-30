@@ -4,6 +4,8 @@ using InkWell.Comment.Repository.Interfaces;
 using InkWell.Comment.Repository.Repositories;
 using InkWell.Comment.Services.Interfaces;
 using InkWell.Comment.Services.Services;
+using InkWell.Comment.Messaging.Consumers;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -16,8 +18,34 @@ var configuration = builder.Configuration;
 // database
 builder.Services.AddDbContext<CommentDbContext>(options =>
 {
-    options.UseSqlServer(configuration.GetConnectionString("CommentDB"));
+    options.UseNpgsql(configuration.GetConnectionString("CommentDB"));
 });
+
+
+// Redis Caching
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = configuration["Redis:ConnectionString"];
+    options.InstanceName = "InkWellComment_";
+});
+
+
+// RabbitMQ with MassTransit
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<PostDeletedConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h => { });
+        
+        // Define the queue that listens for deleted posts
+        cfg.ReceiveEndpoint("comment-post-deleted-queue", e => {
+            e.ConfigureConsumer<PostDeletedConsumer>(context);
+        });
+    });
+});
+
 
 // dependency injection
 builder.Services.AddScoped<ICommentRepository, CommentRepositoryImpl>();
@@ -47,6 +75,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+
 
 builder.Services.AddCors(options =>
 {
@@ -105,7 +134,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<CommentDbContext>();
-    db.Database.Migrate();
+    db.Database.EnsureCreated();
 }
 
 app.Run();
+

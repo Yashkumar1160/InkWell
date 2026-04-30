@@ -130,5 +130,14 @@ namespace InkWell.Comment.Repository.Repositories
                 await dbContext.SaveChangesAsync();
             }
         }
+        public async Task DeleteAllForPost(int postId)
+        {
+            var comments = await dbContext.Comments.Where(c => c.PostId == postId).ToListAsync();
+            if (comments.Any())
+            {
+                dbContext.Comments.RemoveRange(comments);
+                await dbContext.SaveChangesAsync();
+            }
+        }
     }
 }

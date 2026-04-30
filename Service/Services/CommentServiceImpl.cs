@@ -2,26 +2,27 @@ using InkWell.Comment.DTOs;
 using InkWell.Comment.Models;
 using InkWell.Comment.Repository.Interfaces;
 using InkWell.Comment.Services.Interfaces;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
+using MassTransit;
+using InkWell.Shared.Events;
 
 namespace InkWell.Comment.Services.Services
 {
     public class CommentServiceImpl : ICommentService
     {
-        // ICommentRepository Instance
         private ICommentRepository commentRepository;
-
-
-        // admin can toggle this via the endpoint
-        // false = comments auto approved (default)
-        // true  = comments go to PENDING and need approval
         private static bool moderationModeEnabled = false;
+        private IDistributedCache cache;
+        private IPublishEndpoint publishEndpoint;
 
-        // Constructor Dependency Injection
-        public CommentServiceImpl(ICommentRepository repository)
+        // Constructor dependency Injection
+        public CommentServiceImpl(ICommentRepository repository, IDistributedCache cacheService, IPublishEndpoint publish)
         {
             commentRepository = repository;
+            cache = cacheService;
+            publishEndpoint = publish;
         }
-
 
         // when enabled all new comments go to PENDING status
         public void SetModerationMode(bool enabled)
@@ -38,6 +39,7 @@ namespace InkWell.Comment.Services.Services
         // Method to add comment (both reply and top level comment)
         public async Task<CommentResponseDTO> AddComment(int authorId, CreateCommentDTO dto)
         {
+            int parentCommentAuthorId = 0;
             // if this is a reply check if parent comment exists
             if (dto.ParentCommentId != null)
             {
@@ -54,7 +56,11 @@ namespace InkWell.Comment.Services.Services
                 {
                     throw new Exception("You can only reply to top level comments.");
                 }
+
+                parentCommentAuthorId = parent.AuthorId;
             }
+
+            int postAuthorId = dto.PostAuthorId;
 
             // Create new comment
             CommentModel newComment = new CommentModel
@@ -80,12 +86,27 @@ namespace InkWell.Comment.Services.Services
             }
 
             CommentModel saved = await commentRepository.Add(newComment);
+            
+            // Invalidate cache for this post
+            await cache.RemoveAsync($"comments_post_{dto.PostId}");
+
+            // call notification service to alert the post author
+            await NotifyNotificationService(saved, authorId, postAuthorId, parentCommentAuthorId);
+
             return MapToDTO(saved);
         }
 
         // Method to get all comments on a post 
         public async Task<List<CommentResponseDTO>> GetByPost(int postId)
         {
+            string cacheKey = $"comments_post_{postId}";
+            string cachedData = await cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<List<CommentResponseDTO>>(cachedData);
+            }
+
             // get comments on post using post id 
             List<CommentModel> comments = await commentRepository.GetByPostId(postId);
 
@@ -96,6 +117,9 @@ namespace InkWell.Comment.Services.Services
             {
                 result.Add(MapToDTO(comment));
             }
+
+            var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
+            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
 
             return result;
         }
@@ -172,6 +196,9 @@ namespace InkWell.Comment.Services.Services
 
             CommentModel updated = await commentRepository.Update(comment);
 
+            // Invalidate cache
+            await cache.RemoveAsync($"comments_post_{comment.PostId}");
+
             return MapToDTO(updated);
         }
 
@@ -213,6 +240,9 @@ namespace InkWell.Comment.Services.Services
                     await commentRepository.Update(reply);
                 }
             }
+
+            // Invalidate cache
+            await cache.RemoveAsync($"comments_post_{comment.PostId}");
         }
 
         // Method to approve a pending comment
@@ -320,6 +350,32 @@ namespace InkWell.Comment.Services.Services
             }
 
             return result;
+        }
+
+        // Method to notify Notification Service via RabbitMQ
+        private async Task NotifyNotificationService(CommentModel comment, int commentAuthorId, int postAuthorId, int? parentCommentAuthorId)
+        {
+            try
+            {
+                string type = comment.ParentCommentId == null ? "NEW_COMMENT" : "COMMENT_REPLY";
+
+                // Publish event to RabbitMQ
+                await publishEndpoint.Publish(new CommentAddedEvent
+                {
+                    PostId = comment.PostId,
+                    CommentId = comment.CommentId,
+                    CommentAuthorId = commentAuthorId,
+                    PostAuthorId = postAuthorId,
+                    ParentCommentId = comment.ParentCommentId,
+                    ParentCommentAuthorId = parentCommentAuthorId ?? 0,
+                    NotificationType = type
+                });
+            }
+            catch (Exception ex)
+            {
+                // log error but don't fail the request
+                Console.WriteLine($"RabbitMQ Error: {ex.Message}");
+            }
         }
 
         // Method to convert Comment model to CommentResponseDTO

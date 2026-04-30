@@ -34,5 +34,7 @@ namespace InkWell.Comment.Repository.Interfaces
 
         // Method to delete a comment row from database (hard delete)
         Task Delete(int id);
+
+        Task DeleteAllForPost(int postId);
     }
 }
