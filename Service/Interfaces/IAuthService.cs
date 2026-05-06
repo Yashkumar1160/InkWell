@@ -23,7 +23,7 @@ namespace InkWell.Auth.Services.Interfaces
         Task<List<object>> GetUsersByRole(string role);
 
         // Update users bio , avatar , fullname
-        Task UpdateProfile(int userId, UpdateProfileDTO dto);
+        Task<object> UpdateProfile(int userId, UpdateProfileDTO dto);
 
         // Change password after verifying old one
         Task ChangePassword(int userId, ChangePasswordDTO dto);

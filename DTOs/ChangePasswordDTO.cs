@@ -10,8 +10,6 @@ namespace InkWell.Auth.DTOs
 
         [Required(ErrorMessage = "New password is required.")]
         [MinLength(6, ErrorMessage = "New password must be at least 6 characters.")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$",
-            ErrorMessage = "New password must contain at least one uppercase letter, one lowercase letter, and one number.")]
         public string NewPassword{get;set;}
     }
 }

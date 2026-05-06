@@ -129,6 +129,24 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     db.Database.EnsureCreated();
+
+    // Seed Admin user if not exists
+    if (!db.Users.Any(u => u.Role == "ADMIN"))
+    {
+        var admin = new InkWell.Auth.Models.User
+        {
+            Username = "admin",
+            Email = "admin@inkwell.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@Pass123"),
+            FullName = "InkWell Admin",
+            Role = "ADMIN",
+            Provider = "LOCAL",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        db.Users.Add(admin);
+        db.SaveChanges();
+    }
 }
 
 app.Run();

@@ -87,12 +87,19 @@ namespace InkWell.Auth.Controllers
         [Authorize]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDTO dto)
         {
-            // read user id from JWT token claims
-            string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            int userId = int.Parse(id);
+            try 
+            {
+                // read user id from JWT token claims
+                string id = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                int userId = int.Parse(id);
 
-            await authService.UpdateProfile(userId, dto);
-            return Ok(new { message = "Profile updated" });
+                var profile = await authService.UpdateProfile(userId, dto);
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // Change Password 

@@ -130,7 +130,7 @@ namespace AuthService.Services.Service
         }
 
         // Update profile (change name, bio, avatar)
-        public async Task UpdateProfile(int userId, UpdateProfileDTO dto)
+        public async Task<object> UpdateProfile(int userId, UpdateProfileDTO dto)
         {
             // Find user from database
             User user = await userRepository.GetById(userId);
@@ -141,11 +141,25 @@ namespace AuthService.Services.Service
 
             // update fields
             user.FullName = dto.FullName;
-            user.Bio = dto.Bio;
-            user.AvatarUrl = dto.AvatarUrl;
+            user.Bio = dto.Bio ?? "";
+            user.AvatarUrl = dto.AvatarUrl ?? "";
 
             // Save changes
             await userRepository.Update(user);
+
+            // return updated profile
+            return new
+            {
+                user.UserId,
+                user.Username,
+                user.Email,
+                user.FullName,
+                user.Role,
+                user.Bio,
+                user.AvatarUrl,
+                user.IsActive,
+                user.CreatedAt
+            };
         }
 
         // Change Password ( verify old password then set new password)
@@ -483,7 +497,10 @@ namespace AuthService.Services.Service
                 new Claim(ClaimTypes.Name, user.Username),
                 
                 // role (used for authorization) [Authorize]
-                new Claim(ClaimTypes.Role, user.Role)
+                new Claim(ClaimTypes.Role, user.Role),
+
+                // full name (for personalized notifications)
+                new Claim("FullName", user.FullName ?? user.Username)
             };
 
             // Token expires after 24 hrs
