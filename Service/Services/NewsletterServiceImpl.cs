@@ -2,25 +2,26 @@ using InkWell.Newsletter.DTOs;
 using InkWell.Newsletter.Models;
 using InkWell.Newsletter.Repository.Interfaces;
 using InkWell.Newsletter.Services.Interfaces;
+using System.Text.Json;
+using InkWell.Shared.Events;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using MassTransit;
 
 namespace InkWell.Newsletter.Services.Services
 {
     public class NewsletterServiceImpl : INewsletterService
     {
-        // ISubscriberRepository instance
-        private ISubscriberRepository subscriberRepository;
+        private readonly ISubscriberRepository subscriberRepository;
+        private readonly IConfiguration configuration;
+        private readonly IPublishEndpoint publishEndpoint;
 
-        // IConfiguration instance
-        private IConfiguration configuration;
-
-        // Constructor Dependency Injection
-        public NewsletterServiceImpl(ISubscriberRepository repository, IConfiguration config)
+        public NewsletterServiceImpl(ISubscriberRepository repository, IConfiguration config, IPublishEndpoint publishEndpoint)
         {
             subscriberRepository = repository;
             configuration = config;
+            this.publishEndpoint = publishEndpoint;
         }
 
         // Method to subscribe with email
@@ -33,14 +34,26 @@ namespace InkWell.Newsletter.Services.Services
                 // if they previously unsubscribed let them resubscribe
                 Subscriber existing = await subscriberRepository.GetByEmail(dto.Email);
 
+                // Update UserId if it was missing but provided now
+                if (existing.UserId == null && dto.UserId != null)
+                {
+                    existing.UserId = dto.UserId;
+                }
+
                 if (existing.Status == "UNSUBSCRIBED")
                 {
                     // reset their status and give them a new token
-                    existing.Status = "PENDING";
-                    existing.Token = Guid.NewGuid().ToString();
+                    if (configuration["ASPNETCORE_ENVIRONMENT"] == "Development")
+                    {
+                        existing.Status = "ACTIVE";
+                    }
+                    else
+                    {
+                        existing.Status = "PENDING";
+                        existing.Token = Guid.NewGuid().ToString();
+                        existing.TokenCreatedAt = DateTime.UtcNow;
+                    }
 
-                    // reset expiry clock
-                    existing.TokenCreatedAt = DateTime.UtcNow;
                     existing.SubscribedAt = DateTime.UtcNow;
                     existing.UnsubscribedAt = null;
 
@@ -49,8 +62,14 @@ namespace InkWell.Newsletter.Services.Services
                   
                     return MapToDTO(existing);
                 }
+                
+                // If already active, just update UserId and return
+                if (existing.UserId != null)
+                {
+                    await subscriberRepository.Update(existing);
+                }
 
-                throw new Exception("This email is already subscribed.");
+                return MapToDTO(existing);
             }
 
             // create new subscriber with PENDING status
@@ -58,7 +77,14 @@ namespace InkWell.Newsletter.Services.Services
             newSubscriber.Email = dto.Email;
             newSubscriber.FullName = dto.FullName;
             newSubscriber.UserId = dto.UserId;
-            newSubscriber.Status = "PENDING";
+            if (configuration["ASPNETCORE_ENVIRONMENT"] == "Development")
+            {
+                newSubscriber.Status = "ACTIVE";
+            }
+            else
+            {
+                newSubscriber.Status = "PENDING";
+            }
             newSubscriber.SubscribedAt = DateTime.UtcNow;
 
             Subscriber saved = await subscriberRepository.Add(newSubscriber);
@@ -201,39 +227,46 @@ namespace InkWell.Newsletter.Services.Services
             {
                 // build email body with unsubscribe link at the bottom
                 // unsubscribe link uses their unique token so no login needed
-                string appBaseUrl = configuration["App:BaseUrl"];
-                string unsubscribeLink = appBaseUrl + "/api/newsletter/unsubscribe/" + subscriber.Token;
+                string unsubscribeLink = "http://localhost:4200/newsletter/unsubscribe/" + subscriber.Token;
+                string preferencesLink = "http://localhost:4200/newsletter/preferences/" + subscriber.Token;
 
                 string fullBody = dto.Body
                     + "<br><br><hr>"
                     + "<p style='font-size:12px;color:gray;'>"
                     + "You are receiving this because you subscribed to InkWell. "
+                    + "<a href='" + preferencesLink + "'>Manage Preferences</a> | "
                     + "<a href='" + unsubscribeLink + "'>Unsubscribe</a>"
                     + "</p>";
 
                 await SendEmail(subscriber.Email, subscriber.FullName, dto.Subject, fullBody);
             }
+
+            // Publish event for in-app notification
+            await publishEndpoint.Publish(new NewsletterPublishedEvent
+            {
+                Subject = dto.Subject,
+                Body = dto.Body,
+                SentAt = DateTime.UtcNow
+            });
         }
 
-        // Method to be called by post service when new post published
-        // sends new post notification to all active subscribers
         public async Task SendPostNotification(NewPostNotificationDTO dto)
         {
             List<Subscriber> subscribers = await subscriberRepository.GetByStatus("ACTIVE");
-
-            string appBaseUrl = configuration["App:BaseUrl"];
 
             foreach (Subscriber subscriber in subscribers)
             {
                 string subject = "New Post on InkWell: " + dto.Title;
 
-                string unsubscribeLink = appBaseUrl + "/api/newsletter/unsubscribe/" + subscriber.Token;
+                string unsubscribeLink = "http://localhost:4200/newsletter/unsubscribe/" + subscriber.Token;
+                string preferencesLink = "http://localhost:4200/newsletter/preferences/" + subscriber.Token;
 
                 string body = "<h2>" + dto.Title + "</h2>"
                     + "<p>A new post has been published on InkWell.</p>"
-                    + "<a href='http://localhost:4200/blog/" + dto.Slug + "'>Read the post</a>"
+                    + "<a href='http://localhost:4200/post/" + dto.Slug + "'>Read the post</a>"
                     + "<br><br><hr>"
                     + "<p style='font-size:12px;color:gray;'>"
+                    + "<a href='" + preferencesLink + "'>Manage Preferences</a> | "
                     + "<a href='" + unsubscribeLink + "'>Unsubscribe</a>"
                     + "</p>";
 
@@ -294,8 +327,7 @@ namespace InkWell.Newsletter.Services.Services
         // Method to send confirmation email with token link
         private async Task SendConfirmationEmail(Subscriber subscriber)
         {
-            string appBaseUrl = configuration["App:BaseUrl"];
-            string confirmLink = appBaseUrl + "/api/newsletter/confirm/" + subscriber.Token;
+            string confirmLink = "http://localhost:4200/newsletter/confirm/" + subscriber.Token;
 
             string subject = "Confirm your InkWell subscription";
             string body = "<h2>Welcome to InkWell!</h2>"

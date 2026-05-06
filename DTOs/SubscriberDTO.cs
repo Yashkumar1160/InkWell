@@ -10,7 +10,6 @@ namespace InkWell.Newsletter.DTOs
         public string Email { get; set; }
 
         [Required]
-        [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Full name can only contain letters and spaces.")]
         [StringLength(100, MinimumLength = 2)]
         public string FullName { get; set; }
 
