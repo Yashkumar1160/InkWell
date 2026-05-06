@@ -49,7 +49,7 @@ namespace InkWell.Category.Service.Services
             CategoryModel newCategory = new CategoryModel();
             newCategory.Name = dto.Name;
             newCategory.Slug = slug;
-            newCategory.Description = dto.Description;
+            newCategory.Description = dto.Description ?? "";
             newCategory.ParentCategoryId = dto.ParentCategoryId;
             newCategory.PostCount = 0;
             newCategory.CreatedAt = DateTime.UtcNow;
@@ -152,7 +152,7 @@ namespace InkWell.Category.Service.Services
             }
 
             category.Name = dto.Name;
-            category.Description = dto.Description;
+            category.Description = dto.Description ?? "";
             category.ParentCategoryId = dto.ParentCategoryId;
 
             CategoryModel updated = await categoryRepository.UpdateCategory(category);

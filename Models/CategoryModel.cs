@@ -15,7 +15,7 @@ namespace InkWell.Category.Models
         public string Slug { get; set; }
 
         // category description 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         // parent categoryid == null (top level)
         // parent categoryid != null (child)
