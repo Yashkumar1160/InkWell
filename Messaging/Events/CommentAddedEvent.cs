@@ -9,7 +9,7 @@ namespace InkWell.Shared.Events
         public int? ParentCommentId { get; set; }
         public int ParentCommentAuthorId { get; set; }
         public string NotificationType { get; set; }
-        public string CommentAuthorName { get; set; }
+        public string ActorName { get; set; }
         public string PostTitle { get; set; }
     }
 }

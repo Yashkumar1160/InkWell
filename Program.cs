@@ -28,6 +28,8 @@ builder.Services.AddMassTransit(x =>
     // Add Consumers
     x.AddConsumer<InkWell.Notification.Messaging.Consumers.PostLikedConsumer>();
     x.AddConsumer<InkWell.Notification.Messaging.Consumers.CommentAddedConsumer>();
+    x.AddConsumer<InkWell.Notification.Messaging.Consumers.PostPublishedConsumer>();
+    x.AddConsumer<InkWell.Notification.Messaging.Consumers.NewsletterPublishedConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
     {

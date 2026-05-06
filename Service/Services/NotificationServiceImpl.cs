@@ -106,7 +106,7 @@ namespace InkWell.Notification.Services.Services
             }
 
             // user can only mark their own notifications as read
-            if (notification.RecipientId != recipientId)
+            if (notification.RecipientId != recipientId && notification.RecipientId != 0)
             {
                 throw new Exception("You can only mark your own notifications as read.");
             }
@@ -146,7 +146,7 @@ namespace InkWell.Notification.Services.Services
             }
 
             // user can only delete their own notifications
-            if (notification.RecipientId != recipientId)
+            if (notification.RecipientId != recipientId && notification.RecipientId != 0)
             {
                 throw new Exception("You can only delete your own notifications.");
             }
@@ -188,8 +188,8 @@ namespace InkWell.Notification.Services.Services
                     recipientId: dto.PostAuthorId,
                     actorId: dto.CommentAuthorId,
                     type: "NEW_COMMENT",
-                    title: "New comment on your post",
-                    message: "Someone commented on your post.",
+                    title: $"{dto.ActorName} commented on your post",
+                    message: $"{dto.ActorName} left a comment on your post.",
                     relatedId: dto.PostId,
                     relatedType: "Post"
                 );
@@ -203,8 +203,8 @@ namespace InkWell.Notification.Services.Services
                     recipientId: dto.ParentCommentAuthorId,
                     actorId: dto.CommentAuthorId,
                     type: "COMMENT_REPLY",
-                    title: "Someone replied to your comment",
-                    message: "You have a new reply on your comment.",
+                    title: $"{dto.ActorName} replied to your comment",
+                    message: $"{dto.ActorName} replied to your comment.",
                     relatedId: dto.CommentId,
                     relatedType: "Comment"
                 );
@@ -212,7 +212,7 @@ namespace InkWell.Notification.Services.Services
         }
 
         // Method to handle like event from post service
-        public async Task HandlePostLiked(int postId, int postAuthorId, int actorId)
+        public async Task HandlePostLikedPersonalized(int postId, int postAuthorId, int actorId, string actorName)
         {
             // do not notify if user likes their own post
             if (postAuthorId == actorId)
@@ -224,8 +224,23 @@ namespace InkWell.Notification.Services.Services
                 recipientId: postAuthorId,
                 actorId: actorId,
                 type: "LIKE",
-                title: "Someone liked your post",
-                message: "Your post received a new like.",
+                title: $"{actorName} liked your post",
+                message: $"{actorName} liked your post.",
+                relatedId: postId,
+                relatedType: "Post"
+            );
+        }
+
+        // Method to handle post published event from post service
+        public async Task HandlePostPublished(int postId, string title, int authorId)
+        {
+            // 0 means global/system-wide
+            await Send(
+                recipientId: 0,
+                actorId: authorId,
+                type: "NEW_POST",
+                title: "New post published!",
+                message: $"A new post was published: {title}",
                 relatedId: postId,
                 relatedType: "Post"
             );

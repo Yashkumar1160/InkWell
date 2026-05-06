@@ -42,10 +42,13 @@ namespace InkWell.Notification.Services.Interfaces
         Task HandleCommentAdded(CommentAddedDTO dto);
 
         // Method to handle like event from post service
-        Task HandlePostLiked(int postId, int postAuthorId, int actorId);
+        Task HandlePostLikedPersonalized(int postId, int postAuthorId, int actorId, string actorName);
 
         // Method to handle mention event from comment service
         Task HandleMention(int mentionedUserId, int actorId, int commentId, int postId);
+
+        // Method to handle post published event from post service
+        Task HandlePostPublished(int postId, string title, int authorId);
 
         // Method to get notifications by type
         Task<List<NotificationResponseDTO>> GetByType(string type);

@@ -16,11 +16,7 @@ namespace InkWell.Notification.Messaging.Consumers
         public async Task Consume(ConsumeContext<PostLikedEvent> context)
         {
             var message = context.Message;
-            await _notificationService.HandlePostLiked(
-                message.PostId,
-                message.PostAuthorId,
-                message.ActorId
-            );
+            await _notificationService.HandlePostLikedPersonalized(message.PostId, message.PostAuthorId, message.ActorId, message.ActorName);
         }
     }
 }

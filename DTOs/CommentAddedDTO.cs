@@ -17,6 +17,7 @@ namespace InkWell.Notification.DTOs
 
         // NEW_COMMENT or COMMENT_REPLY
         public string NotificationType { get; set; }
+        public string ActorName { get; set; }
     }
 
 }

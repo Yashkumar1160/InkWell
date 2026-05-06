@@ -30,7 +30,7 @@ namespace InkWell.Notification.Repository.Repositories
         public async Task<List<NotificationModel>> GetByRecipientId(int recipientId)
         {
             List<NotificationModel> notifications = await dbContext.Notifications
-                .Where(n => n.RecipientId == recipientId)
+                .Where(n => n.RecipientId == recipientId || n.RecipientId == 0)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
             return notifications;
@@ -40,7 +40,7 @@ namespace InkWell.Notification.Repository.Repositories
         public async Task<List<NotificationModel>> GetUnreadByRecipientId(int recipientId)
         {
             List<NotificationModel> notifications = await dbContext.Notifications
-                .Where(n => n.RecipientId == recipientId && n.IsRead == false)
+                .Where(n => (n.RecipientId == recipientId || n.RecipientId == 0) && n.IsRead == false)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
             return notifications;
@@ -70,7 +70,7 @@ namespace InkWell.Notification.Repository.Repositories
         public async Task<int> CountUnreadByRecipientId(int recipientId)
         {
             int count = await dbContext.Notifications
-                .CountAsync(n => n.RecipientId == recipientId && n.IsRead == false);
+                .CountAsync(n => (n.RecipientId == recipientId || n.RecipientId == 0) && n.IsRead == false);
             return count;
         }
 

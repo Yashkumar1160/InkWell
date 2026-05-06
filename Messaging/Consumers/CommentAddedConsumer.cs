@@ -26,7 +26,8 @@ namespace InkWell.Notification.Messaging.Consumers
                 PostAuthorId = message.PostAuthorId,
                 ParentCommentId = message.ParentCommentId,
                 ParentCommentAuthorId = message.ParentCommentAuthorId,
-                NotificationType = message.NotificationType
+                NotificationType = message.NotificationType,
+                ActorName = message.ActorName
             };
 
             await _notificationService.HandleCommentAdded(dto);
