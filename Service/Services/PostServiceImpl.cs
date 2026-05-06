@@ -372,7 +372,7 @@ namespace InkWell.Post.Service.Services
         }
 
         // Method to increase like count 
-        public async Task LikePost(int postId, int actorId)
+        public async Task LikePost(int postId, int actorId, string actorName)
         {
             PostModel post = await postRepository.GetById(postId);
             if (post == null)
@@ -399,11 +399,11 @@ namespace InkWell.Post.Service.Services
             await cache.RemoveAsync("published_posts");
 
             // notify post author that someone liked their post
-            await NotifyNotificationService(postId, post.AuthorId, actorId);
+            await NotifyNotificationService(postId, post.AuthorId, actorId, actorName);
         }
 
         // Method to notify Notification Service via RabbitMQ
-        private async Task NotifyNotificationService(int postId, int postAuthorId, int actorId)
+        private async Task NotifyNotificationService(int postId, int postAuthorId, int actorId, string actorName)
         {
             try
             {
@@ -412,7 +412,8 @@ namespace InkWell.Post.Service.Services
                 {
                     PostId = postId,
                     PostAuthorId = postAuthorId,
-                    ActorId = actorId
+                    ActorId = actorId,
+                    ActorName = actorName
                 });
             }
             catch (Exception ex)

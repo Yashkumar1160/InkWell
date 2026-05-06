@@ -236,7 +236,9 @@ namespace InkWell.Post.Controllers
                 string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 int actorId = int.Parse(idStr);
 
-                await postService.LikePost(id, actorId);
+                string actorName = User.FindFirstValue("FullName") ?? User.FindFirstValue(ClaimTypes.Name);
+
+                await postService.LikePost(id, actorId, actorName);
                 return Ok(new { message = "Post liked." });
             }
             catch (Exception ex)

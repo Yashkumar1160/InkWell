@@ -20,7 +20,6 @@ var configuration = builder.Configuration;
 builder.Services.AddDbContext<PostDbContext>(options =>
 {
     options.UseNpgsql(configuration.GetConnectionString("PostDB"));
-    options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
 });
 
 

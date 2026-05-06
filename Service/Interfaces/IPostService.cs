@@ -64,7 +64,7 @@ namespace InkWell.Post.Service.Interfaces
         Task IncrementViews(int postId);
 
         // Method to add one like to the post
-        Task LikePost(int postId, int actorId);
+        Task LikePost(int postId, int actorId, string actorName);
 
 
         // Method to remove one like from the post
