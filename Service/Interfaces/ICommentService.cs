@@ -5,7 +5,7 @@ namespace InkWell.Comment.Services.Interfaces
     public interface ICommentService
     {
         // Method to add a new comment or reply to a post
-        Task<CommentResponseDTO> AddComment(int authorId, CreateCommentDTO dto);
+        Task<CommentResponseDTO> AddComment(int authorId, string actorName, CreateCommentDTO dto);
 
         // Method to get all comments on a post 
         Task<List<CommentResponseDTO>> GetByPost(int postId);

@@ -31,8 +31,11 @@ namespace InkWell.Comment.Controllers
                 string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 int authorId = int.Parse(idStr);
 
+                // get author name from claims
+                string actorName = User.FindFirstValue("FullName") ?? User.FindFirstValue(ClaimTypes.Name);
+
                 // Add comment using commentService
-                CommentResponseDTO result = await commentService.AddComment(authorId, dto);
+                CommentResponseDTO result = await commentService.AddComment(authorId, actorName, dto);
                 return Ok(result);
             }
             catch (Exception ex)

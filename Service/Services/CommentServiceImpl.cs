@@ -12,8 +12,11 @@ namespace InkWell.Comment.Services.Services
     public class CommentServiceImpl : ICommentService
     {
         private ICommentRepository commentRepository;
+        
         private static bool moderationModeEnabled = false;
+        
         private IDistributedCache cache;
+        
         private IPublishEndpoint publishEndpoint;
 
         // Constructor dependency Injection
@@ -37,7 +40,7 @@ namespace InkWell.Comment.Services.Services
 
 
         // Method to add comment (both reply and top level comment)
-        public async Task<CommentResponseDTO> AddComment(int authorId, CreateCommentDTO dto)
+        public async Task<CommentResponseDTO> AddComment(int authorId, string actorName, CreateCommentDTO dto)
         {
             int parentCommentAuthorId = 0;
             // if this is a reply check if parent comment exists
@@ -91,7 +94,7 @@ namespace InkWell.Comment.Services.Services
             await cache.RemoveAsync($"comments_post_{dto.PostId}");
 
             // call notification service to alert the post author
-            await NotifyNotificationService(saved, authorId, postAuthorId, parentCommentAuthorId);
+            await NotifyNotificationService(saved, authorId, actorName, postAuthorId, parentCommentAuthorId);
 
             return MapToDTO(saved);
         }
@@ -353,7 +356,7 @@ namespace InkWell.Comment.Services.Services
         }
 
         // Method to notify Notification Service via RabbitMQ
-        private async Task NotifyNotificationService(CommentModel comment, int commentAuthorId, int postAuthorId, int? parentCommentAuthorId)
+        private async Task NotifyNotificationService(CommentModel comment, int commentAuthorId, string actorName, int postAuthorId, int? parentCommentAuthorId)
         {
             try
             {
@@ -368,7 +371,8 @@ namespace InkWell.Comment.Services.Services
                     PostAuthorId = postAuthorId,
                     ParentCommentId = comment.ParentCommentId,
                     ParentCommentAuthorId = parentCommentAuthorId ?? 0,
-                    NotificationType = type
+                    NotificationType = type,
+                    ActorName = actorName
                 });
             }
             catch (Exception ex)
