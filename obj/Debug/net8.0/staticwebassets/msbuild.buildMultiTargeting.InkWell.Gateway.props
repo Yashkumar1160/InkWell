@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\InkWell.Gateway.props" />
-</Project>
