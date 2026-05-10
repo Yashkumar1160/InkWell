@@ -89,10 +89,13 @@ StyleCopReport.xml
 *.pgd
 *.rsp
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 # but not Directory.Build.rsp, as it configures directory-level build defaults
 !Directory.Build.rsp
 >>>>>>> 30ee8f36b9407ef5fdf71a5446f9f6eb920d0b5d
+=======
+>>>>>>> 3b60064
 *.sbr
 *.tlb
 *.tli
@@ -408,10 +411,14 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 <<<<<<< HEAD
+<<<<<<< HEAD
 .idea
 =======
 .idea/
 >>>>>>> 30ee8f36b9407ef5fdf71a5446f9f6eb920d0b5d
+=======
+.idea
+>>>>>>> 3b60064
 
 ##
 ## Visual studio for Mac
@@ -432,14 +439,20 @@ tarballs/
 test-results/
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 3b60064
 # Mac bundle stuff
 *.dmg
 *.app
 
 # content below from: https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
+<<<<<<< HEAD
 =======
 # content below from: https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
 >>>>>>> 30ee8f36b9407ef5fdf71a5446f9f6eb920d0b5d
+=======
+>>>>>>> 3b60064
 # General
 .DS_Store
 .AppleDouble
@@ -469,10 +482,14 @@ Temporary Items
 .apdisk
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # content below from: https://github.com/github/gitignore/blob/master/Global/Windows.gitignore
 =======
 # content below from: https://github.com/github/gitignore/blob/main/Global/Windows.gitignore
 >>>>>>> 30ee8f36b9407ef5fdf71a5446f9f6eb920d0b5d
+=======
+# content below from: https://github.com/github/gitignore/blob/master/Global/Windows.gitignore
+>>>>>>> 3b60064
 # Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
