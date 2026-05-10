@@ -1,0 +1,6 @@
+@InkWell.Comment_HostAddress = http://localhost:5101
+
+GET {{InkWell.Comment_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
