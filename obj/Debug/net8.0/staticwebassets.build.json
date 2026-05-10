@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "pvKl52wsDdKmP6meji5TleC3vRLB53VmaZcReXCl2yU=",
+  "Source": "InkWell.Gateway",
+  "BasePath": "_content/InkWell.Gateway",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
