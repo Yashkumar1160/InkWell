@@ -1,0 +1,6 @@
+@InkWell.Media_HostAddress = http://localhost:5015
+
+GET {{InkWell.Media_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
