@@ -88,6 +88,11 @@ StyleCopReport.xml
 *.pgc
 *.pgd
 *.rsp
+<<<<<<< HEAD
+=======
+# but not Directory.Build.rsp, as it configures directory-level build defaults
+!Directory.Build.rsp
+>>>>>>> 30ee8f36b9407ef5fdf71a5446f9f6eb920d0b5d
 *.sbr
 *.tlb
 *.tli
@@ -402,7 +407,11 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+<<<<<<< HEAD
 .idea
+=======
+.idea/
+>>>>>>> 30ee8f36b9407ef5fdf71a5446f9f6eb920d0b5d
 
 ##
 ## Visual studio for Mac
@@ -422,11 +431,15 @@ autom4te.cache/
 tarballs/
 test-results/
 
+<<<<<<< HEAD
 # Mac bundle stuff
 *.dmg
 *.app
 
 # content below from: https://github.com/github/gitignore/blob/master/Global/macOS.gitignore
+=======
+# content below from: https://github.com/github/gitignore/blob/main/Global/macOS.gitignore
+>>>>>>> 30ee8f36b9407ef5fdf71a5446f9f6eb920d0b5d
 # General
 .DS_Store
 .AppleDouble
@@ -455,7 +468,11 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+<<<<<<< HEAD
 # content below from: https://github.com/github/gitignore/blob/master/Global/Windows.gitignore
+=======
+# content below from: https://github.com/github/gitignore/blob/main/Global/Windows.gitignore
+>>>>>>> 30ee8f36b9407ef5fdf71a5446f9f6eb920d0b5d
 # Windows thumbnail cache files
 Thumbs.db
 ehthumbs.db
