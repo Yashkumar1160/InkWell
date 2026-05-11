@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using InkWell.Category.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
 // Dependency Injection
 builder.Services.AddScoped<ICategoryRepository, CategoryRepositoryImpl>();
 builder.Services.AddScoped<ICategoryService, CategoryServiceImpl>();
+
+// Register Global Exception Handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // JWT (same as auth service so that token works accross all services)
 byte[] keyBytes = Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]);
@@ -111,6 +116,8 @@ var app = builder.Build();
 
 
 // Middlewate Pipeline
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
