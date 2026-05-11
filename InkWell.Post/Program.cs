@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using InkWell.Post.Middleware;
 using InkWell.Post.Context;
 using InkWell.Post.Repository.Interfaces;
 using InkWell.Post.Repository.Repositories;
@@ -91,6 +92,8 @@ builder.Services.AddCors(options =>
 
 // Add Controllers
 builder.Services.AddControllers();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 
 
@@ -126,6 +129,8 @@ builder.Services.AddSwaggerGen(options =>
 // Build app
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 
 // Middlewate Pipeline
 if (app.Environment.IsDevelopment())
@@ -148,4 +153,5 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
 
