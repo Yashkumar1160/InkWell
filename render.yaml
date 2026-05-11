@@ -1,0 +1,63 @@
+services:
+  - type: web
+    name: auth-service
+    env: docker
+    dockerContext: InkWell.Auth
+    dockerfilePath: InkWell.Auth/Dockerfile
+    envVars:
+      - key: ConnectionStrings__AuthDB
+        fromDatabase:
+          name: inkwell-db
+          property: connectionString
+
+  - type: web
+    name: post-service
+    env: docker
+    dockerContext: InkWell.Post
+    dockerfilePath: InkWell.Post/Dockerfile
+    envVars:
+      - key: ConnectionStrings__PostDB
+        fromDatabase:
+          name: inkwell-db
+          property: connectionString
+
+  - type: web
+    name: category-service
+    env: docker
+    dockerContext: InkWell.Category
+    dockerfilePath: InkWell.Category/Dockerfile
+
+  - type: web
+    name: comment-service
+    env: docker
+    dockerContext: InkWell.Comment
+    dockerfilePath: InkWell.Comment/Dockerfile
+
+  - type: web
+    name: media-service
+    env: docker
+    dockerContext: InkWell.Media
+    dockerfilePath: InkWell.Media/Dockerfile
+
+  - type: web
+    name: newsletter-service
+    env: docker
+    dockerContext: InkWell.Newsletter
+    dockerfilePath: InkWell.Newsletter/Dockerfile
+
+  - type: web
+    name: notification-service
+    env: docker
+    dockerContext: InkWell.Notification
+    dockerfilePath: InkWell.Notification/Dockerfile
+
+  - type: web
+    name: inkwell-gateway
+    env: docker
+    dockerContext: InkWell.Gateway
+    dockerfilePath: InkWell.Gateway/Dockerfile
+
+databases:
+  - name: inkwell-db
+    databaseName: inkwell
+    plan: free

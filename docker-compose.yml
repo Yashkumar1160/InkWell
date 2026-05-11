@@ -1,0 +1,209 @@
+services:
+  # Infrastructure: PostgreSQL
+  postgres:
+    image: postgres:latest
+    container_name: inkwell-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=InkWell@Pass123
+      - POSTGRES_USER=postgres
+    restart: always
+
+  # Infrastructure: Redis
+  redis:
+    image: redis:latest
+    container_name: inkwell-redis
+    ports:
+      - "6379:6379"
+
+  # Infrastructure: RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: inkwell-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./InkWell.Auth
+      dockerfile: Dockerfile
+    container_name: inkwell-auth
+    ports:
+      - "5058:5058"
+    restart: on-failure
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:5058"
+      - "ConnectionStrings__AuthDB=Host=postgres;Database=InkWell_Auth;Username=postgres;Password=InkWell@Pass123"
+    depends_on:
+      - postgres
+
+  # Post Service
+  post-service:
+    build:
+      context: ./InkWell.Post
+      dockerfile: Dockerfile
+    container_name: inkwell-post
+    ports:
+      - "5159:5159"
+    restart: on-failure
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:5159"
+      - "ConnectionStrings__PostDB=Host=postgres;Database=InkWell_Post;Username=postgres;Password=InkWell@Pass123"
+      - "Redis__ConnectionString=redis:6379"
+      - "RabbitMQ__Host=rabbitmq"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
+  # Category Service
+  category-service:
+    build:
+      context: ./InkWell.Category
+      dockerfile: Dockerfile
+    container_name: inkwell-category
+    ports:
+      - "5184:5184"
+    restart: on-failure
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:5184"
+      - "ConnectionStrings__CategoryDB=Host=postgres;Database=InkWell_Category;Username=postgres;Password=InkWell@Pass123"
+      - "Redis__ConnectionString=redis:6379"
+    depends_on:
+      - postgres
+      - redis
+
+  # Comment Service
+  comment-service:
+    build:
+      context: ./InkWell.Comment
+      dockerfile: Dockerfile
+    container_name: inkwell-comment
+    ports:
+      - "5101:5101"
+    restart: on-failure
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:5101"
+      - "ConnectionStrings__CommentDB=Host=postgres;Database=InkWell_Comment;Username=postgres;Password=InkWell@Pass123"
+      - "Redis__ConnectionString=redis:6379"
+      - "RabbitMQ__Host=rabbitmq"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+
+  # Media Service
+  media-service:
+    build:
+      context: ./InkWell.Media
+      dockerfile: Dockerfile
+    container_name: inkwell-media
+    ports:
+      - "5015:5015"
+    restart: on-failure
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:5015"
+      - "ConnectionStrings__MediaDB=Host=postgres;Database=InkWell_Media;Username=postgres;Password=InkWell@Pass123"
+    depends_on:
+      - postgres
+    volumes:
+      - ./InkWell.Media/wwwroot/uploads:/app/wwwroot/uploads
+
+  # Notification Service
+  notification-service:
+    build:
+      context: ./InkWell.Notification
+      dockerfile: Dockerfile
+    container_name: inkwell-notification
+    ports:
+      - "5131:5131"
+    restart: on-failure
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:5131"
+      - "ConnectionStrings__NotificationDB=Host=postgres;Database=InkWell_Notification;Username=postgres;Password=InkWell@Pass123"
+      - "RabbitMQ__Host=rabbitmq"
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  # Newsletter Service
+  newsletter-service:
+    build:
+      context: ./InkWell.Newsletter
+      dockerfile: Dockerfile
+    container_name: inkwell-newsletter
+    ports:
+      - "5046:5046"
+    restart: on-failure
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:5046"
+      - "ConnectionStrings__NewsletterDB=Host=postgres;Database=InkWell_Newsletter;Username=postgres;Password=InkWell@Pass123"
+      - "RabbitMQ__Host=rabbitmq"
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  # API Gateway
+  gateway:
+    build:
+      context: ./InkWell.Gateway
+      dockerfile: Dockerfile
+    container_name: inkwell-gateway
+    ports:
+      - "5032:5032"
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Docker"
+      - "ASPNETCORE_URLS=http://+:5032"
+    depends_on:
+      - auth-service
+      - post-service
+      - category-service
+      - comment-service
+      - media-service
+      - newsletter-service
+      - notification-service
+
+
+  # Infrastructure: pgAdmin (PostgreSQL Web GUI)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: inkwell-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@inkwell.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    depends_on:
+      - postgres
+
+  # Infrastructure: SonarQube
+  sonarqube:
+    image: sonarqube:community
+    container_name: inkwell-sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://postgres:5432/sonarqube
+      - SONAR_JDBC_USERNAME=postgres
+      - SONAR_JDBC_PASSWORD=InkWell@Pass123
+    depends_on:
+      - postgres
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
