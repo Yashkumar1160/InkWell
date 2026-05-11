@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using InkWell.Auth.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,10 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 // Dependency Injection (One instance per HTTP request)
 builder.Services.AddScoped<IUserRepository, UserRepositoryImpl>();
 builder.Services.AddScoped<IAuthService, AuthService.Services.Service.AuthServiceImpl>();
+
+// Register Global Exception Handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 
 // JWT authentication 
@@ -109,6 +114,8 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Middleware Pipeline
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
