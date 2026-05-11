@@ -26,18 +26,11 @@ namespace InkWell.Media.Controllers
         [Authorize(Roles = "AUTHOR,ADMIN")]
         public async Task<IActionResult> Upload(IFormFile file)
         {
-            try
-            {
-                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                int uploaderId = int.Parse(idStr);
+            string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int uploaderId = int.Parse(idStr);
 
-                MediaResponseDTO result = await mediaService.UploadMedia(uploaderId, file);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            MediaResponseDTO result = await mediaService.UploadMedia(uploaderId, file);
+            return Ok(result);
         }
 
         // GET /api/media/5
@@ -46,15 +39,8 @@ namespace InkWell.Media.Controllers
         [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
-            try
-            {
-                MediaResponseDTO result = await mediaService.GetById(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return NotFound(new { message = ex.Message });
-            }
+            MediaResponseDTO result = await mediaService.GetById(id);
+            return Ok(result);
         }
 
         // GET /api/media/my-files
@@ -108,19 +94,12 @@ namespace InkWell.Media.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                int uploaderId = int.Parse(idStr);
-                string callerRole = User.FindFirstValue(ClaimTypes.Role);
+            string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int uploaderId = int.Parse(idStr);
+            string callerRole = User.FindFirstValue(ClaimTypes.Role);
 
-                await mediaService.SoftDelete(id, uploaderId, callerRole);
-                return Ok(new { message = "File deleted." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await mediaService.SoftDelete(id, uploaderId, callerRole);
+            return Ok(new { message = "File deleted." });
         }
 
         // PUT /api/media/alt-text/5
@@ -129,21 +108,14 @@ namespace InkWell.Media.Controllers
         [Authorize(Roles = "AUTHOR,ADMIN")]
         public async Task<IActionResult> UpdateAltText(int id, [FromBody] UpdateAltTextDTO dto)
         {
-            try
-            {
-                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                int uploaderId = int.Parse(idStr);
+            string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int uploaderId = int.Parse(idStr);
 
-                // pass caller role so admin can update any file
-                string callerRole = User.FindFirstValue(ClaimTypes.Role);
+            // pass caller role so admin can update any file
+            string callerRole = User.FindFirstValue(ClaimTypes.Role);
 
-                MediaResponseDTO result = await mediaService.UpdateAltText(id, uploaderId, dto, callerRole);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            MediaResponseDTO result = await mediaService.UpdateAltText(id, uploaderId, dto, callerRole);
+            return Ok(result);
         }
 
         // PUT /api/media/link/5
@@ -152,15 +124,8 @@ namespace InkWell.Media.Controllers
         [Authorize(Roles = "AUTHOR,ADMIN")]
         public async Task<IActionResult> LinkToPost(int id, [FromBody] LinkPostDTO dto)
         {
-            try
-            {
-                MediaResponseDTO result = await mediaService.LinkToPost(id, dto.PostId);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            MediaResponseDTO result = await mediaService.LinkToPost(id, dto.PostId);
+            return Ok(result);
         }
 
         // PUT /api/media/unlink/5
@@ -169,15 +134,8 @@ namespace InkWell.Media.Controllers
         [Authorize(Roles = "AUTHOR,ADMIN")]
         public async Task<IActionResult> UnlinkFromPost(int id)
         {
-            try
-            {
-                MediaResponseDTO result = await mediaService.UnlinkFromPost(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            MediaResponseDTO result = await mediaService.UnlinkFromPost(id);
+            return Ok(result);
         }
 
         // DELETE /api/media/cleanup
