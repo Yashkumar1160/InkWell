@@ -3,103 +3,102 @@
     {
       "DownstreamPathTemplate": "/api/Auth/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5058 } ],
+      "DownstreamHostAndPorts": [ { "Host": "auth-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/auth/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Post/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5159 } ],
+      "DownstreamHostAndPorts": [ { "Host": "post-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/post/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Category/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5184 } ],
+      "DownstreamHostAndPorts": [ { "Host": "category-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/category/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Comment/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5101 } ],
+      "DownstreamHostAndPorts": [ { "Host": "comment-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/comment/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Media/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5015 } ],
+      "DownstreamHostAndPorts": [ { "Host": "media-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/media/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Newsletter/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5046 } ],
+      "DownstreamHostAndPorts": [ { "Host": "newsletter-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/newsletter/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Notification/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5131 } ],
+      "DownstreamHostAndPorts": [ { "Host": "notification-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/notification/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5058 } ],
+      "DownstreamHostAndPorts": [ { "Host": "auth-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/auth/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5159 } ],
+      "DownstreamHostAndPorts": [ { "Host": "post-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/post/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5101 } ],
+      "DownstreamHostAndPorts": [ { "Host": "comment-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/comment/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5184 } ],
+      "DownstreamHostAndPorts": [ { "Host": "category-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/category/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5015 } ],
+      "DownstreamHostAndPorts": [ { "Host": "media-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/media/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5046 } ],
+      "DownstreamHostAndPorts": [ { "Host": "newsletter-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/newsletter/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPorts": [ { "Host": "localhost", "Port": 5131 } ],
+      "DownstreamHostAndPorts": [ { "Host": "notification-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/notification/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     }
   ],
   "GlobalConfiguration": {
-    "BaseUrl": "http://localhost:5032"
   }
 }
