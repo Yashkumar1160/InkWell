@@ -2,6 +2,7 @@ services:
   - type: web
     name: auth-service
     env: docker
+    plan: free
     dockerContext: InkWell.Auth
     dockerfilePath: InkWell.Auth/Dockerfile
     envVars:
@@ -13,6 +14,7 @@ services:
   - type: web
     name: post-service
     env: docker
+    plan: free
     dockerContext: InkWell.Post
     dockerfilePath: InkWell.Post/Dockerfile
     envVars:
@@ -24,36 +26,42 @@ services:
   - type: web
     name: category-service
     env: docker
+    plan: free
     dockerContext: InkWell.Category
     dockerfilePath: InkWell.Category/Dockerfile
 
   - type: web
     name: comment-service
     env: docker
+    plan: free
     dockerContext: InkWell.Comment
     dockerfilePath: InkWell.Comment/Dockerfile
 
   - type: web
     name: media-service
     env: docker
+    plan: free
     dockerContext: InkWell.Media
     dockerfilePath: InkWell.Media/Dockerfile
 
   - type: web
     name: newsletter-service
     env: docker
+    plan: free
     dockerContext: InkWell.Newsletter
     dockerfilePath: InkWell.Newsletter/Dockerfile
 
   - type: web
     name: notification-service
     env: docker
+    plan: free
     dockerContext: InkWell.Notification
     dockerfilePath: InkWell.Notification/Dockerfile
 
   - type: web
     name: inkwell-gateway
     env: docker
+    plan: free
     dockerContext: InkWell.Gateway
     dockerfilePath: InkWell.Gateway/Dockerfile
 
