@@ -68,18 +68,11 @@ namespace InkWell.Notification.Controllers
         [Authorize]
         public async Task<IActionResult> MarkAsRead(int id)
         {
-            try
-            {
-                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                int recipientId = int.Parse(idStr);
+            string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int recipientId = int.Parse(idStr);
 
-                await notificationService.MarkAsRead(id, recipientId);
-                return Ok(new { message = "Notification marked as read." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await notificationService.MarkAsRead(id, recipientId);
+            return Ok(new { message = "Notification marked as read." });
         }
 
         // PUT /api/notification/read-all
@@ -101,18 +94,11 @@ namespace InkWell.Notification.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
-            try
-            {
-                string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                int recipientId = int.Parse(idStr);
+            string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            int recipientId = int.Parse(idStr);
 
-                await notificationService.DeleteNotification(id, recipientId);
-                return Ok(new { message = "Notification deleted." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await notificationService.DeleteNotification(id, recipientId);
+            return Ok(new { message = "Notification deleted." });
         }
 
         // DELETE /api/notification/delete-read
@@ -145,15 +131,8 @@ namespace InkWell.Notification.Controllers
         [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Broadcast([FromBody] BroadcastDTO dto)
         {
-            try
-            {
-                await notificationService.SendBulk(dto);
-                return Ok(new { message = "Broadcast sent." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await notificationService.SendBulk(dto);
+            return Ok(new { message = "Broadcast sent." });
         }
 
         // GET /api/notification/by-type?type=NEW_COMMENT

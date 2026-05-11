@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using InkWell.Notification.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,6 +83,8 @@ builder.Services.AddCors(options =>
 
 // Controllers
 builder.Services.AddControllers();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger configuration
@@ -115,6 +118,8 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 // Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
@@ -136,4 +141,5 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
 
