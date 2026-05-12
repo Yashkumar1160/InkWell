@@ -38,6 +38,10 @@ services:
     dockerContext: InkWell.Category
     dockerfilePath: InkWell.Category/Dockerfile
     envVars:
+      - key: ConnectionStrings__CategoryDB
+        fromDatabase:
+          name: inkwell-db
+          property: connectionString
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -50,6 +54,10 @@ services:
     dockerContext: InkWell.Comment
     dockerfilePath: InkWell.Comment/Dockerfile
     envVars:
+      - key: ConnectionStrings__CommentDB
+        fromDatabase:
+          name: inkwell-db
+          property: connectionString
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -62,6 +70,10 @@ services:
     dockerContext: InkWell.Media
     dockerfilePath: InkWell.Media/Dockerfile
     envVars:
+      - key: ConnectionStrings__MediaDB
+        fromDatabase:
+          name: inkwell-db
+          property: connectionString
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -74,6 +86,10 @@ services:
     dockerContext: InkWell.Newsletter
     dockerfilePath: InkWell.Newsletter/Dockerfile
     envVars:
+      - key: ConnectionStrings__NewsletterDB
+        fromDatabase:
+          name: inkwell-db
+          property: connectionString
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -86,6 +102,10 @@ services:
     dockerContext: InkWell.Notification
     dockerfilePath: InkWell.Notification/Dockerfile
     envVars:
+      - key: ConnectionStrings__NotificationDB
+        fromDatabase:
+          name: inkwell-db
+          property: connectionString
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
