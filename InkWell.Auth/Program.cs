@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Text;
 using InkWell.Auth.Context;
 using InkWell.Auth.Repository.Interface;
@@ -141,7 +143,7 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    db.Database.EnsureCreated();
+    try { var databaseCreator = db.GetService<IRelationalDatabaseCreator>(); databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
 
     // Seed Admin user if not exists
     if (!db.Users.Any(u => u.Role == "ADMIN"))
@@ -163,6 +165,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
 
 
 

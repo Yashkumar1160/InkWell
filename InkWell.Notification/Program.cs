@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using System.Text;
 using InkWell.Notification.Context;
 using InkWell.Notification.Repository.Interfaces;
@@ -143,10 +145,11 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
-    db.Database.EnsureCreated();
+    try { var databaseCreator = db.GetService<IRelationalDatabaseCreator>(); databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
 }
 
 app.Run();
+
 
 
 

@@ -10,4 +10,4 @@ WORKDIR /app
 COPY --from=build /app .
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
-ENTRYPOINT ["dotnet", "InkWell.Apigateway.dll"]
+ENTRYPOINT ["dotnet", "InkWell.Gateway.dll"]
