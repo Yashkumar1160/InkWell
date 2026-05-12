@@ -10,6 +10,10 @@ services:
         fromDatabase:
           name: inkwell-db
           property: connectionString
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
+      - key: DOTNET_gcServer
+        value: "0"
 
   - type: web
     name: post-service
@@ -22,6 +26,10 @@ services:
         fromDatabase:
           name: inkwell-db
           property: connectionString
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
+      - key: DOTNET_gcServer
+        value: "0"
 
   - type: web
     name: category-service
@@ -29,6 +37,11 @@ services:
     plan: free
     dockerContext: InkWell.Category
     dockerfilePath: InkWell.Category/Dockerfile
+    envVars:
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
+      - key: DOTNET_gcServer
+        value: "0"
 
   - type: web
     name: comment-service
@@ -36,6 +49,11 @@ services:
     plan: free
     dockerContext: InkWell.Comment
     dockerfilePath: InkWell.Comment/Dockerfile
+    envVars:
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
+      - key: DOTNET_gcServer
+        value: "0"
 
   - type: web
     name: media-service
@@ -43,6 +61,11 @@ services:
     plan: free
     dockerContext: InkWell.Media
     dockerfilePath: InkWell.Media/Dockerfile
+    envVars:
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
+      - key: DOTNET_gcServer
+        value: "0"
 
   - type: web
     name: newsletter-service
@@ -50,6 +73,11 @@ services:
     plan: free
     dockerContext: InkWell.Newsletter
     dockerfilePath: InkWell.Newsletter/Dockerfile
+    envVars:
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
+      - key: DOTNET_gcServer
+        value: "0"
 
   - type: web
     name: notification-service
@@ -57,6 +85,11 @@ services:
     plan: free
     dockerContext: InkWell.Notification
     dockerfilePath: InkWell.Notification/Dockerfile
+    envVars:
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
+      - key: DOTNET_gcServer
+        value: "0"
 
   - type: web
     name: inkwell-gateway
@@ -64,6 +97,11 @@ services:
     plan: free
     dockerContext: InkWell.Gateway
     dockerfilePath: InkWell.Gateway/Dockerfile
+    envVars:
+      - key: DOTNET_EnableDiagnostics
+        value: "0"
+      - key: DOTNET_gcServer
+        value: "0"
 
 databases:
   - name: inkwell-db
