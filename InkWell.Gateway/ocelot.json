@@ -17,7 +17,6 @@
     {
       "DownstreamPathTemplate": "/api/Category/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [ { "Host": "category-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/category/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
