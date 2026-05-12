@@ -139,29 +139,41 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Auto-create Admin User
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+    var adminEmail = "admin@gmail.com";
+    var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
+
+    if (adminUser == null)
+    {
+        var newAdmin = new User
+        {
+            Username = "admin",
+            Email = adminEmail,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin1234"),
+            FullName = "Administrator",
+            Role = "ADMIN",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            Provider = "LOCAL"
+        };
+        context.Users.Add(newAdmin);
+        await context.SaveChangesAsync();
+    }
+    else if (adminUser.Role != "ADMIN")
+    {
+        adminUser.Role = "ADMIN";
+        await context.SaveChangesAsync();
+    }
+}
+
 // Apply Migrations
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     try { var databaseCreator = db.GetService<IRelationalDatabaseCreator>(); databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
-
-    // Seed Admin user if not exists
-    if (!db.Users.Any(u => u.Role == "ADMIN"))
-    {
-        var admin = new InkWell.Auth.Models.User
-        {
-            Username = "admin",
-            Email = "admin@inkwell.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@Pass123"),
-            FullName = "InkWell Admin",
-            Role = "ADMIN",
-            Provider = "LOCAL",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow
-        };
-        db.Users.Add(admin);
-        db.SaveChanges();
-    }
 }
 
 app.Run();
