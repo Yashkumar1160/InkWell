@@ -1,1 +1,0 @@
-cRVC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Newsletter\InkWell.Newsletter.csprojòCSharp12

@@ -1,1 +1,0 @@
-]RPC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Gateway\InkWell.Gateway.csprojòCSharp12

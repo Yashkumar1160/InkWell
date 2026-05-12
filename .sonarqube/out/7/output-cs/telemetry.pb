@@ -1,1 +1,0 @@
-YRLC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Media\InkWell.Media.csprojòCSharp12
