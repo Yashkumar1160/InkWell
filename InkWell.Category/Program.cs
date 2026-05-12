@@ -17,9 +17,15 @@ var configuration = builder.Configuration;
 
 
 // Database service
+var connUrl = configuration.GetConnectionString("CategoryDB");
+if (connUrl != null && connUrl.StartsWith("postgres://")) {
+    var uri = new Uri(connUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    connUrl = $"Host={uri.Host};Port={(uri.Port > 0 ? uri.Port : 5432)};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SslMode=Require;TrustServerCertificate=True;";
+}
 builder.Services.AddDbContext<CategoryDbContext>(options =>
 {
-    options.UseNpgsql(configuration.GetConnectionString("CategoryDB"));
+    options.UseNpgsql(connUrl);
 });
 
 
@@ -139,4 +145,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+
 
