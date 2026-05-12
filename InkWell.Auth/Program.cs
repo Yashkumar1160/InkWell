@@ -145,13 +145,17 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     var adminEmail = "admin@gmail.com";
-    var adminUser = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
+    var adminUsername = "admin_super"; // Changed to avoid conflicts
+    
+    // Check if either the email or username is already taken
+    var existingByEmail = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
+    var existingByUsername = await context.Users.FirstOrDefaultAsync(u => u.Username == adminUsername);
 
-    if (adminUser == null)
+    if (existingByEmail == null && existingByUsername == null)
     {
         var newAdmin = new User
         {
-            Username = "admin",
+            Username = adminUsername,
             Email = adminEmail,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin1234"),
             FullName = "Administrator",
@@ -163,9 +167,9 @@ using (var scope = app.Services.CreateScope())
         context.Users.Add(newAdmin);
         await context.SaveChangesAsync();
     }
-    else if (adminUser.Role != "ADMIN")
+    else if (existingByEmail != null && existingByEmail.Role != "ADMIN")
     {
-        adminUser.Role = "ADMIN";
+        existingByEmail.Role = "ADMIN";
         await context.SaveChangesAsync();
     }
 }
