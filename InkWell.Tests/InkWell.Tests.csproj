@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit.Analyzers" Version="3.9.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InkWell.Auth\InkWell.Auth.csproj" />
+    <ProjectReference Include="..\InkWell.Category\InkWell.Category.csproj" />
+    <ProjectReference Include="..\InkWell.Comment\InkWell.Comment.csproj" />
+    <ProjectReference Include="..\InkWell.Media\InkWell.Media.csproj" />
+    <ProjectReference Include="..\InkWell.Newsletter\InkWell.Newsletter.csproj" />
+    <ProjectReference Include="..\InkWell.Notification\InkWell.Notification.csproj" />
+    <ProjectReference Include="..\InkWell.Post\InkWell.Post.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>
