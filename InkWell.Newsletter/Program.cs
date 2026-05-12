@@ -18,7 +18,7 @@ var configuration = builder.Configuration;
 
 // Database context
 var connUrl = configuration.GetConnectionString("NewsletterDB");
-if (connUrl != null && connUrl.StartsWith("postgres://")) {
+if (connUrl != null && connUrl.Contains("://")) {
     var uri = new Uri(connUrl);
     var userInfo = uri.UserInfo.Split(':');
     connUrl = $"Host={uri.Host};Port={(uri.Port > 0 ? uri.Port : 5432)};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SslMode=Require;TrustServerCertificate=True;";
@@ -144,6 +144,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
 
 
 
