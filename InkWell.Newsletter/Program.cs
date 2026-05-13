@@ -66,7 +66,7 @@ var jwtSecret = configuration["Jwt:Secret"];
 if (string.IsNullOrEmpty(jwtSecret))
 {
     Console.WriteLine("CRITICAL: Jwt:Secret is missing from configuration!");
-    jwtSecret = "H7qTSFExjOFBO4w67FN3JbgnVk8YTaNn2Jndvgkqg6I"; 
+    jwtSecret = "FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg="; 
 }
 byte[] keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
 var securityKey = new SymmetricSecurityKey(keyBytes);
