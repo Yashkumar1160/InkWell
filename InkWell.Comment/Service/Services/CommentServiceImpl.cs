@@ -90,8 +90,9 @@ namespace InkWell.Comment.Services.Services
 
             CommentModel saved = await commentRepository.Add(newComment);
             
-            // Invalidate cache for this post
+            // Invalidate cache for this post (Aggressive)
             await cache.RemoveAsync($"comments_post_{dto.PostId}");
+            await cache.RemoveAsync($"comments_post_{saved.PostId}");
 
             // call notification service to alert the post author
             await NotifyNotificationService(saved, authorId, actorName, postAuthorId, parentCommentAuthorId);

@@ -40,32 +40,11 @@ namespace InkWell.Newsletter.Services.Services
                     existing.UserId = dto.UserId;
                 }
 
-                if (existing.Status == "UNSUBSCRIBED")
+                // If they are not active, activate them
+                if (existing.Status != "ACTIVE")
                 {
-                    // reset their status and give them a new token
-                    if (configuration["ASPNETCORE_ENVIRONMENT"] == "Development")
-                    {
-                        existing.Status = "ACTIVE";
-                    }
-                    else
-                    {
-                        existing.Status = "PENDING";
-                        existing.Token = Guid.NewGuid().ToString();
-                        existing.TokenCreatedAt = DateTime.UtcNow;
-                    }
-
-                    existing.SubscribedAt = DateTime.UtcNow;
+                    existing.Status = "ACTIVE";
                     existing.UnsubscribedAt = null;
-
-                    await subscriberRepository.Update(existing);
-                    await SendConfirmationEmail(existing);
-                  
-                    return MapToDTO(existing);
-                }
-                
-                // If already active, just update UserId and return
-                if (existing.UserId != null)
-                {
                     await subscriberRepository.Update(existing);
                 }
 
@@ -77,14 +56,7 @@ namespace InkWell.Newsletter.Services.Services
             newSubscriber.Email = dto.Email;
             newSubscriber.FullName = dto.FullName;
             newSubscriber.UserId = dto.UserId;
-            if (configuration["ASPNETCORE_ENVIRONMENT"] == "Development")
-            {
-                newSubscriber.Status = "ACTIVE";
-            }
-            else
-            {
-                newSubscriber.Status = "PENDING";
-            }
+            newSubscriber.Status = "ACTIVE";
             newSubscriber.SubscribedAt = DateTime.UtcNow;
 
             Subscriber saved = await subscriberRepository.Add(newSubscriber);

@@ -34,6 +34,8 @@ services:
         value: "0"
       - key: Redis__ConnectionString
         value: red-d81dfsd7vvec73f0k0jg:6379
+      - key: RabbitMQ__ConnectionString
+        value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
 
   - type: web
     name: category-service
@@ -70,6 +72,8 @@ services:
         value: "0"
       - key: Redis__ConnectionString
         value: red-d81dfsd7vvec73f0k0jg:6379
+      - key: RabbitMQ__ConnectionString
+        value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
 
   - type: web
     name: media-service
@@ -88,6 +92,8 @@ services:
         value: "0"
       - key: Redis__ConnectionString
         value: red-d81dfsd7vvec73f0k0jg:6379
+      - key: RabbitMQ__ConnectionString
+        value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
 
   - type: web
     name: newsletter-service
@@ -106,6 +112,8 @@ services:
         value: "0"
       - key: Redis__ConnectionString
         value: red-d81dfsd7vvec73f0k0jg:6379
+      - key: RabbitMQ__ConnectionString
+        value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
 
   - type: web
     name: notification-service
@@ -124,6 +132,8 @@ services:
         value: "0"
       - key: Redis__ConnectionString
         value: red-d81dfsd7vvec73f0k0jg:6379
+      - key: RabbitMQ__ConnectionString
+        value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
 
   - type: web
     name: inkwell-gateway
