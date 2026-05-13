@@ -42,14 +42,20 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        var rabbitUrl = configuration["RabbitMQ:ConnectionString"] ?? configuration["RabbitMQ:Host"];
-        if (rabbitUrl != null && rabbitUrl.Contains("://"))
+        // Try multiple possible keys to be extra safe
+        var rabbitUrl = configuration["RabbitMQ:ConnectionString"] 
+                     ?? configuration["RabbitMQ__ConnectionString"] 
+                     ?? configuration["RABBITMQ_URL"] 
+                     ?? configuration["RabbitMQ:Host"];
+
+        if (!string.IsNullOrEmpty(rabbitUrl) && rabbitUrl.Contains("://"))
         {
             cfg.Host(new Uri(rabbitUrl));
         }
         else
         {
-            cfg.Host(rabbitUrl, "/", h => { });
+            // Default to localhost only if no cloud URL is found
+            cfg.Host(rabbitUrl ?? "localhost", "/", h => { });
         }
         cfg.ConfigureEndpoints(context);
     });
