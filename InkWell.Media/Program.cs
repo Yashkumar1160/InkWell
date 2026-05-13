@@ -75,9 +75,10 @@ builder.Services.AddCors(options =>
 });
 
 // Controllers
-builder.Services.AddControllers();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+builder.Services.AddControllers(options => 
+{
+    options.Filters.Add<GlobalExceptionHandler>();
+});
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger
@@ -111,7 +112,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
+// app.UseExceptionHandler();
 
 // Middleware Pipeline
 if (app.Environment.IsDevelopment())

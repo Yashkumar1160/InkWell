@@ -45,7 +45,15 @@ builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(configuration["RabbitMQ:Host"], "/", h => { });
+        var rabbitUrl = configuration["RabbitMQ:ConnectionString"] ?? configuration["RabbitMQ:Host"];
+        if (rabbitUrl != null && rabbitUrl.Contains("://"))
+        {
+            cfg.Host(new Uri(rabbitUrl));
+        }
+        else
+        {
+            cfg.Host(rabbitUrl, "/", h => { });
+        }
     });
 });
 
@@ -99,9 +107,10 @@ builder.Services.AddCors(options =>
 });
 
 // Add Controllers
-builder.Services.AddControllers();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+builder.Services.AddControllers(options => 
+{
+    options.Filters.Add<GlobalExceptionHandler>();
+});
 builder.Services.AddEndpointsApiExplorer();
 
 
@@ -137,7 +146,7 @@ builder.Services.AddSwaggerGen(options =>
 // Build app
 var app = builder.Build();
 
-app.UseExceptionHandler();
+// app.UseExceptionHandler();
 
 
 // Middlewate Pipeline

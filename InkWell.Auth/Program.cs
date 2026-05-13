@@ -34,10 +34,6 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepositoryImpl>();
 builder.Services.AddScoped<IAuthService, AuthService.Services.Service.AuthServiceImpl>();
 
-// Register Global Exception Handler
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
-
 
 // JWT authentication 
 // get secret key from appsettings.json and convert to bytes
@@ -87,7 +83,10 @@ builder.Services.AddCors(options =>
 });
 
 // Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => 
+{
+    options.Filters.Add<GlobalExceptionHandler>();
+});
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -123,7 +122,7 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Middleware Pipeline
-app.UseExceptionHandler();
+// app.UseExceptionHandler(); // Not needed for IExceptionFilter
 
 if (app.Environment.IsDevelopment())
 {

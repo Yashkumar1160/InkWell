@@ -43,10 +43,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddScoped<ICategoryRepository, CategoryRepositoryImpl>();
 builder.Services.AddScoped<ICategoryService, CategoryServiceImpl>();
 
-// Register Global Exception Handler
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
-
 // JWT (same as auth service so that token works accross all services)
 byte[] keyBytes = Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]);
 var securityKey = new SymmetricSecurityKey(keyBytes);
@@ -88,7 +84,10 @@ builder.Services.AddCors(options =>
 
 
 // Add Controllers
-builder.Services.AddControllers();
+builder.Services.AddControllers(options => 
+{
+    options.Filters.Add<GlobalExceptionHandler>();
+});
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger
@@ -123,8 +122,8 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 
-// Middlewate Pipeline
-app.UseExceptionHandler();
+// Middleware Pipeline
+// app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {

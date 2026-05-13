@@ -1,38 +1,76 @@
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
+using Microsoft.AspNetCore.Mvc.Filters;
+using InkWell.Auth.DTOs;
 
 namespace InkWell.Auth.Middleware
 {
-    public class GlobalExceptionHandler : IExceptionHandler
+    public class GlobalExceptionHandler : IExceptionFilter
     {
-        private readonly ILogger<GlobalExceptionHandler> _logger;
-
-        public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
+        public void OnException(ExceptionContext context)
         {
-            _logger = logger;
-        }
+            // Decide status code based on exception type
+            int status = GetStatusCode(context.Exception);
+            string error = GetErrorMessage(status);
 
-        public async ValueTask<bool> TryHandleAsync(
-            HttpContext httpContext,
-            Exception exception,
-            CancellationToken cancellationToken)
-        {
-            _logger.LogError(exception, "Exception occurred: {Message}", exception.Message);
-
-            var problemDetails = new ProblemDetails
+            // Build the error response
+            ErrorResponseDTO response = new ErrorResponseDTO
             {
-                Status = (int)HttpStatusCode.InternalServerError,
-                Title = "Auth Service Error",
-                Detail = exception.Message,
-                Instance = httpContext.Request.Path
+                Timestamp = DateTime.UtcNow.ToString("O"),
+                Status = status,
+                Error = error,
+                Message = context.Exception.Message,
+                Path = context.HttpContext.Request.Path.ToString()
             };
 
-            httpContext.Response.StatusCode = problemDetails.Status.Value;
+            // Return the response with correct status code
+            context.Result = new ObjectResult(response)
+            {
+                StatusCode = status
+            };
 
-            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            // Tell ASP.NET Core the exception has been handled
+            context.ExceptionHandled = true;
+        }
 
-            return true;
+        // Returns 400 for known exceptions, 500 for everything else
+        private int GetStatusCode(Exception exception)
+        {
+            if (exception is ArgumentException)
+            {
+                return 400;
+            }
+
+            if (exception is UnauthorizedAccessException)
+            {
+                return 401;
+            }
+
+            if (exception is InvalidOperationException)
+            {
+                return 409;
+            }
+
+            return 500;
+        }
+
+        // Returns error text based on status code
+        private string GetErrorMessage(int status)
+        {
+            if (status == 400)
+            {
+                return "Bad Request";
+            }
+            if (status == 401)
+            {
+                return "Unauthorized";
+            }
+
+            if (status == 409)
+            {
+                return "Conflict";
+            }
+
+            return "Internal Server Error";
         }
     }
 }

@@ -46,7 +46,15 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(builder.Configuration["RabbitMQ:Host"], "/", h => { });
+        var rabbitUrl = configuration["RabbitMQ:ConnectionString"] ?? configuration["RabbitMQ:Host"];
+        if (rabbitUrl != null && rabbitUrl.Contains("://"))
+        {
+            cfg.Host(new Uri(rabbitUrl));
+        }
+        else
+        {
+            cfg.Host(rabbitUrl, "/", h => { });
+        }
         
         // Define the queue that listens for deleted posts
         cfg.ReceiveEndpoint("comment-post-deleted-queue", e => {
@@ -96,9 +104,10 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+builder.Services.AddControllers(options => 
+{
+    options.Filters.Add<GlobalExceptionHandler>();
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -130,7 +139,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
+// app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {

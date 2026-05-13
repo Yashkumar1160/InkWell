@@ -42,7 +42,15 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Host(configuration["RabbitMQ:Host"], "/", h => { });
+        var rabbitUrl = configuration["RabbitMQ:ConnectionString"] ?? configuration["RabbitMQ:Host"];
+        if (rabbitUrl != null && rabbitUrl.Contains("://"))
+        {
+            cfg.Host(new Uri(rabbitUrl));
+        }
+        else
+        {
+            cfg.Host(rabbitUrl, "/", h => { });
+        }
         cfg.ConfigureEndpoints(context);
     });
 });
@@ -90,9 +98,13 @@ builder.Services.AddCors(options =>
 });
 
 // Controllers
-builder.Services.AddControllers();
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+builder.Services.AddControllers(options => 
+{
+    options.Filters.Add<GlobalExceptionHandler>();
+});
+// Register Global Exception Handler
+// builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+// builder.Services.AddProblemDetails();
 builder.Services.AddEndpointsApiExplorer();
 
 // Swagger configuration
@@ -126,7 +138,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-app.UseExceptionHandler();
+// app.UseExceptionHandler();
 
 // Middleware pipeline
 if (app.Environment.IsDevelopment())
