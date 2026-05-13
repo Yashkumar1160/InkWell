@@ -281,5 +281,23 @@ namespace InkWell.Category.Repository.Repositories
                 await dbContext.SaveChangesAsync();
             }
         }
+
+        // Method to get post by category
+        public async Task<List<int>> GetPostIdsByCategoryId(int categoryId)
+        {
+            return await dbContext.PostCategories
+                .Where(pc => pc.CategoryId == categoryId)
+                .Select(pc => pc.PostId)
+                .ToListAsync();
+        }
+
+        // Method to get post by tag
+        public async Task<List<int>> GetPostIdsByTagId(int tagId)
+        {
+            return await dbContext.PostTags
+                .Where(pt => pt.TagId == tagId)
+                .Select(pt => pt.PostId)
+                .ToListAsync();
+        }
     }
 }

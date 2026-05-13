@@ -36,8 +36,13 @@ builder.Services.AddScoped<IAuthService, AuthService.Services.Service.AuthServic
 
 
 // JWT authentication 
-// get secret key from appsettings.json and convert to bytes
-byte[] keyBytes = Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]);
+var jwtSecret = configuration["Jwt:Secret"];
+if (string.IsNullOrEmpty(jwtSecret))
+{
+    Console.WriteLine("CRITICAL: Jwt:Secret is missing from configuration!");
+    jwtSecret = "H7qTSFExjOFBO4w67FN3JbgnVk8YTaNn2Jndvgkqg6I"; 
+}
+byte[] keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
 var securityKey = new SymmetricSecurityKey(keyBytes);
 
 
@@ -122,8 +127,6 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 // Middleware Pipeline
-// app.UseExceptionHandler(); // Not needed for IExceptionFilter
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -144,7 +147,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     var adminEmail = "admin@gmail.com";
-    var adminUsername = "admin_super"; // Changed to avoid conflicts
+    var adminUsername = "admin_super"; 
     
     // Check if either the email or username is already taken
     var existingByEmail = await context.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);

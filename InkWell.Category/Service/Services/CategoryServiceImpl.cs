@@ -305,7 +305,7 @@ namespace InkWell.Category.Service.Services
 
             if (alreadyAssigned == true)
             {
-                throw new Exception("This tag is already assigned to this post.");
+                return; // Already exists - return gracefully
             }
 
             // create the PostTag record
@@ -422,7 +422,7 @@ namespace InkWell.Category.Service.Services
           
             if (alreadyAssigned == true)
             {
-                throw new Exception("This category is already assigned to this post.");
+                return; // Already exists - return gracefully
             }
 
             // create the PostCategory record
@@ -473,6 +473,20 @@ namespace InkWell.Category.Service.Services
             }
            
             return result;
+        }
+
+        public async Task<List<int>> GetPostIdsByCategorySlug(string slug)
+        {
+            var category = await categoryRepository.GetCategoryBySlug(slug);
+            if (category == null) return new List<int>();
+            return await categoryRepository.GetPostIdsByCategoryId(category.CategoryId);
+        }
+
+        public async Task<List<int>> GetPostIdsByTagSlug(string slug)
+        {
+            var tag = await categoryRepository.GetTagBySlug(slug);
+            if (tag == null) return new List<int>();
+            return await categoryRepository.GetPostIdsByTagId(tag.TagId);
         }
     }
 }

@@ -67,7 +67,14 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepositoryImpl>(
 builder.Services.AddScoped<INotificationService, NotificationServiceImpl>();
 
 // JWT Authentication
-byte[] keyBytes = Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]);
+// JWT (same secret as Auth for verification)
+var jwtSecret = configuration["Jwt:Secret"];
+if (string.IsNullOrEmpty(jwtSecret))
+{
+    Console.WriteLine("CRITICAL: Jwt:Secret is missing from configuration!");
+    jwtSecret = "H7qTSFExjOFBO4w67FN3JbgnVk8YTaNn2Jndvgkqg6I"; 
+}
+byte[] keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
 var securityKey = new SymmetricSecurityKey(keyBytes);
 
 builder.Services.AddAuthentication(options =>

@@ -83,5 +83,11 @@ namespace InkWell.Category.Repository.Interfaces
 
         // Method to remove category from post
         Task RemovePostCategory(int postId, int categoryId);
+
+        // Method to get post by category 
+        Task<List<int>> GetPostIdsByCategoryId(int categoryId);
+
+        // Method to get post by tag 
+        Task<List<int>> GetPostIdsByTagId(int tagId);
     }
 }

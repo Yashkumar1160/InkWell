@@ -68,5 +68,11 @@ namespace InkWell.Category.Service.Interfaces
 
         // Method to get all categories a post belongs to
         Task<List<CategoryResponseDTO>> GetCategoriesByPost(int postId);
+
+        // Method to get all post ids for a category slug
+        Task<List<int>> GetPostIdsByCategorySlug(string slug);
+
+        // Method to get all post ids for a tag slug
+        Task<List<int>> GetPostIdsByTagSlug(string slug);
     }
 }

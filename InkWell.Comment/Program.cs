@@ -73,7 +73,13 @@ builder.Services.AddScoped<ICommentRepository, CommentRepositoryImpl>();
 builder.Services.AddScoped<ICommentService, CommentServiceImpl>();
 
 // jwt - same secret key as all other services
-byte[] keyBytes = Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]);
+var jwtSecret = configuration["Jwt:Secret"];
+if (string.IsNullOrEmpty(jwtSecret))
+{
+    Console.WriteLine("CRITICAL: Jwt:Secret is missing from configuration!");
+    jwtSecret = "H7qTSFExjOFBO4w67FN3JbgnVk8YTaNn2Jndvgkqg6I"; 
+}
+byte[] keyBytes = Encoding.UTF8.GetBytes(jwtSecret);
 var securityKey = new SymmetricSecurityKey(keyBytes);
 
 builder.Services.AddAuthentication(options =>

@@ -164,5 +164,19 @@ namespace InkWell.Category.Controllers
             List<CategoryResponseDTO> categories = await categoryService.GetCategoriesByPost(postId);
             return Ok(categories);
         }
+
+        [HttpGet("slug/{slug}/posts")]
+        public async Task<IActionResult> GetPostIdsByCategorySlug(string slug)
+        {
+            List<int> postIds = await categoryService.GetPostIdsByCategorySlug(slug);
+            return Ok(postIds);
+        }
+
+        [HttpGet("tag/slug/{slug}/posts")]
+        public async Task<IActionResult> GetPostIdsByTagSlug(string slug)
+        {
+            List<int> postIds = await categoryService.GetPostIdsByTagSlug(slug);
+            return Ok(postIds);
+        }
     }
 }
