@@ -347,6 +347,14 @@ namespace InkWell.Category.Service.Services
         // Method to get tags by post count
         public async Task<List<TagResponseDTO>> GetTagsByPost(int postId)
         {
+            string cacheKey = $"post_tags_{postId}";
+            string cachedData = await cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<List<TagResponseDTO>>(cachedData);
+            }
+
             List<Tag> tags = await categoryRepository.GetTagsByPostId(postId);
             List<TagResponseDTO> result = new List<TagResponseDTO>();
 
@@ -354,6 +362,12 @@ namespace InkWell.Category.Service.Services
             {
                 result.Add(MapTagToDTO(tag));
             }
+
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+            };
+            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
            
             return result;
         }
@@ -464,6 +478,14 @@ namespace InkWell.Category.Service.Services
         // Method to get categories by a post
         public async Task<List<CategoryResponseDTO>> GetCategoriesByPost(int postId)
         {
+            string cacheKey = $"post_categories_{postId}";
+            string cachedData = await cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<List<CategoryResponseDTO>>(cachedData);
+            }
+
             List<CategoryModel> categories = await categoryRepository.GetCategoriesByPostId(postId);
             List<CategoryResponseDTO> result = new List<CategoryResponseDTO>();
 
@@ -471,6 +493,12 @@ namespace InkWell.Category.Service.Services
             {
                 result.Add(MapCategoryToDTO(category));
             }
+
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
+            };
+            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
            
             return result;
         }

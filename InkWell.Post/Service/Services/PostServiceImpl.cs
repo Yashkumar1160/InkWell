@@ -117,7 +117,15 @@ namespace InkWell.Post.Service.Services
         // Method to get post that are published
         public async Task<List<PostResponseDTO>> GetPublished()
         {
-            // Fetch directly from database to ensure 100% consistency with likes/views
+            string cacheKey = "published_posts";
+            string cachedData = await cache.GetStringAsync(cacheKey);
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                return JsonSerializer.Deserialize<List<PostResponseDTO>>(cachedData);
+            }
+
+            // Fetch directly from database if not in cache
             List<PostModel> posts = await postRepository.GetPublished();
             List<PostResponseDTO> result = new List<PostResponseDTO>();
 
@@ -125,6 +133,13 @@ namespace InkWell.Post.Service.Services
             {
                 result.Add(MapToDTO(post));
             }
+
+            // Store in cache for 10 minutes
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
+            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
 
             return result;
         }
