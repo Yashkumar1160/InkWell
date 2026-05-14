@@ -29,7 +29,7 @@ namespace InkWell.Newsletter.Services.Services
         {
             if (dto.UserId == null)
             {
-                throw new Exception("You must be logged in to subscribe to the newsletter.");
+                throw new UnauthorizedAccessException("You must be logged in to subscribe to the newsletter.");
             }
 
             // check if user already has a subscription record
@@ -40,7 +40,7 @@ namespace InkWell.Newsletter.Services.Services
                 // If they are already active
                 if (existingByUser.Status == "ACTIVE")
                 {
-                    throw new Exception("You are already subscribed to our newsletter.");
+                    throw new InvalidOperationException("You are already subscribed to our newsletter.");
                 }
 
                 // If they were unsubscribed, reactivate them
@@ -51,17 +51,39 @@ namespace InkWell.Newsletter.Services.Services
                 return MapToDTO(existingByUser);
             }
 
-            // also check if email is already taken by someone else (unlikely but safe)
-            bool emailExists = await subscriberRepository.EmailExists(dto.Email);
-            if (emailExists == true)
+            // also check if email is already taken by someone else 
+            Subscriber existingByEmail = await subscriberRepository.GetByEmail(dto.Email);
+            
+            if (existingByEmail != null)
             {
-                Subscriber existingByEmail = await subscriberRepository.GetByEmail(dto.Email);
-                
-                // If it belongs to someone else
-                if (existingByEmail.UserId != dto.UserId)
+                // If it belongs to someone else (different UserId)
+                if (existingByEmail.UserId != null && existingByEmail.UserId != dto.UserId)
                 {
-                    throw new Exception("This email is already associated with another subscription.");
+                    throw new InvalidOperationException("This email is already associated with another subscription.");
                 }
+
+                // If it was anonymous (no UserId), link it to the current user
+                if (existingByEmail.UserId == null)
+                {
+                    existingByEmail.UserId = dto.UserId;
+                    existingByEmail.FullName = dto.FullName;
+                    existingByEmail.Status = "ACTIVE";
+                    existingByEmail.UnsubscribedAt = null;
+                    await subscriberRepository.Update(existingByEmail);
+                    return MapToDTO(existingByEmail);
+                }
+
+                // If it was already linked to this UserId but GetByUserId failed somehow (unlikely)
+                if (existingByEmail.Status == "ACTIVE")
+                {
+                    throw new InvalidOperationException("You are already subscribed to our newsletter.");
+                }
+
+                // Reactivate
+                existingByEmail.Status = "ACTIVE";
+                existingByEmail.UnsubscribedAt = null;
+                await subscriberRepository.Update(existingByEmail);
+                return MapToDTO(existingByEmail);
             }
 
             // create new subscriber with ACTIVE status
@@ -87,26 +109,26 @@ namespace InkWell.Newsletter.Services.Services
 
             if (subscriber == null)
             {
-                throw new Exception("Invalid confirmation link.");
+                throw new InvalidOperationException("Invalid confirmation link.");
             }
 
             // if already subscribed
             if (subscriber.Status == "ACTIVE")
             {
-                throw new Exception("This subscription is already confirmed.");
+                throw new InvalidOperationException("This subscription is already confirmed.");
             }
 
             // if not subscribed
             if (subscriber.Status == "UNSUBSCRIBED")
             {
-                throw new Exception("This subscription has been cancelled.");
+                throw new InvalidOperationException("This subscription has been cancelled.");
             }
 
             // check if token has expired after 24 hours
             double hoursElapsed = (DateTime.UtcNow - subscriber.TokenCreatedAt).TotalHours;
             if (hoursElapsed > 24)
             {
-                throw new Exception("Confirmation link has expired. Please subscribe again.");
+                throw new InvalidOperationException("Confirmation link has expired. Please subscribe again.");
             }
 
             // update subscription status
@@ -123,12 +145,12 @@ namespace InkWell.Newsletter.Services.Services
 
             if (subscriber == null)
             {
-                throw new Exception("Invalid unsubscribe link.");
+                throw new InvalidOperationException("Invalid unsubscribe link.");
             }
 
             if (subscriber.Status == "UNSUBSCRIBED")
             {
-                throw new Exception("Already unsubscribed.");
+                throw new InvalidOperationException("Already unsubscribed.");
             }
 
             subscriber.Status = "UNSUBSCRIBED";
@@ -143,7 +165,7 @@ namespace InkWell.Newsletter.Services.Services
             Subscriber subscriber = await subscriberRepository.GetByEmail(email);
             if (subscriber == null)
             {
-                throw new Exception("Subscriber not found.");
+                throw new InvalidOperationException("Subscriber not found.");
             }
             return MapToDTO(subscriber);
         }
@@ -167,7 +189,7 @@ namespace InkWell.Newsletter.Services.Services
         {
             if (status != "PENDING" && status != "ACTIVE" && status != "UNSUBSCRIBED")
             {
-                throw new Exception("Status must be PENDING, ACTIVE or UNSUBSCRIBED.");
+                throw new InvalidOperationException("Status must be PENDING, ACTIVE or UNSUBSCRIBED.");
             }
 
             List<Subscriber> subscribers = await subscriberRepository.GetByStatus(status);
@@ -266,7 +288,7 @@ namespace InkWell.Newsletter.Services.Services
 
             if (subscriber == null)
             {
-                throw new Exception("Invalid token.");
+                throw new InvalidOperationException("Invalid token.");
             }
 
             subscriber.Preferences = dto.Preferences;
@@ -288,7 +310,7 @@ namespace InkWell.Newsletter.Services.Services
 
             if (subscriber == null)
             {
-                throw new Exception("Subscriber not found.");
+                throw new InvalidOperationException("Subscriber not found.");
             }
 
             await subscriberRepository.DeleteById(subscriberId);
@@ -301,7 +323,7 @@ namespace InkWell.Newsletter.Services.Services
 
             if (subscriber == null)
             {
-                throw new Exception("No subscription found for this user.");
+                throw new InvalidOperationException("No subscription found for this user.");
             }
 
             subscriber.Preferences = dto.Preferences;
@@ -328,7 +350,7 @@ namespace InkWell.Newsletter.Services.Services
 
             if (subscriber == null)
             {
-                throw new Exception("No subscription found for your account or email.");
+                throw new InvalidOperationException("No subscription found for your account or email.");
             }
 
             if (subscriber.Status == "UNSUBSCRIBED")

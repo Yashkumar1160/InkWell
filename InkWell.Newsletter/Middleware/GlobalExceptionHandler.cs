@@ -11,6 +11,10 @@ namespace InkWell.Newsletter.Middleware
             int status = GetStatusCode(context.Exception);
             string error = GetErrorMessage(status);
 
+            // Log error for debugging
+            Console.WriteLine($"[Newsletter Service Error] {context.Exception.Message}");
+            Console.WriteLine(context.Exception.StackTrace);
+
             ErrorResponseDTO response = new ErrorResponseDTO
             {
                 Timestamp = DateTime.UtcNow.ToString("O"),

@@ -28,8 +28,24 @@ namespace InkWell.Newsletter.Controllers
             string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             string email = User.FindFirstValue(ClaimTypes.Email);
             
+            if (string.IsNullOrEmpty(idStr))
+            {
+                return Unauthorized(new { message = "User ID claim is missing from token." });
+            }
+
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(new { message = "Email claim is missing from token. Please ensure your account has an email." });
+            }
+
             dto.UserId = int.Parse(idStr);
             dto.Email = email;
+
+            // Optional: get name from token if not provided in dto
+            if (string.IsNullOrEmpty(dto.FullName))
+            {
+                dto.FullName = User.FindFirstValue("FullName") ?? User.Identity.Name ?? "User";
+            }
 
             SubscriberResponseDTO result = await newsletterService.Subscribe(dto);
             return Ok(new { message = "Subscription activated. Welcome to our newsletter!", data = result });
