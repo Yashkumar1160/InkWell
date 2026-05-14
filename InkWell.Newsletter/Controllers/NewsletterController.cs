@@ -111,10 +111,12 @@ namespace InkWell.Newsletter.Controllers
         [Authorize]
         public async Task<IActionResult> UnsubscribeMe()
         {
-            string idStr = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+            string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string email = User.FindFirstValue(ClaimTypes.Email);
+            
             int userId = int.Parse(idStr);
 
-            await newsletterService.UnsubscribeByUserId(userId);
+            await newsletterService.UnsubscribeByUser(userId, email);
             return Ok(new { message = "You have been unsubscribed from our newsletter." });
         }
     }

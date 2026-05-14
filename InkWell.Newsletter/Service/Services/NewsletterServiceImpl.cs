@@ -295,14 +295,27 @@ namespace InkWell.Newsletter.Services.Services
             await subscriberRepository.Update(subscriber);
         }
 
-        // Method to unsubscribe by user id (for logged in users)
-        public async Task UnsubscribeByUserId(int userId)
+        // Method to unsubscribe by user id and email (for logged in users)
+        public async Task UnsubscribeByUser(int userId, string email)
         {
+            // Try to find by UserId first
             Subscriber subscriber = await subscriberRepository.GetByUserId(userId);
+
+            // If not found by UserId, try finding by Email
+            if (subscriber == null)
+            {
+                subscriber = await subscriberRepository.GetByEmail(email);
+                
+                // If found by email, link it to the UserId now so it's linked for future
+                if (subscriber != null && subscriber.UserId == null)
+                {
+                    subscriber.UserId = userId;
+                }
+            }
 
             if (subscriber == null)
             {
-                throw new Exception("No subscription found for this user.");
+                throw new Exception("No subscription found for your account or email.");
             }
 
             if (subscriber.Status == "UNSUBSCRIBED")

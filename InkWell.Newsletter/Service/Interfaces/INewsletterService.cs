@@ -43,7 +43,7 @@ namespace InkWell.Newsletter.Services.Interfaces
         // Method to update preferences by user id (for logged in users)
         Task UpdatePreferencesByUserId(int userId, UpdatePreferencesDTO dto);
 
-        // Method to unsubscribe by user id (for logged in users)
-        Task UnsubscribeByUserId(int userId);
+        // Method to unsubscribe by user id and email (for logged in users)
+        Task UnsubscribeByUser(int userId, string email);
     }
 }
