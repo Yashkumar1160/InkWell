@@ -2,99 +2,99 @@
   "Routes": [
     {
       "DownstreamPathTemplate": "/api/Auth/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "auth-service-4tej.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "auth-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/auth/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Post/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "post-service-wxf7.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "post-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/post/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Category/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "category-service-v49w.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "category-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/category/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Comment/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "comment-service-8gdp.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "comment-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/comment/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Media/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "media-service-tyol.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "media-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/media/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Newsletter/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "newsletter-service-3r22.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "newsletter-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/newsletter/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/api/Notification/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "notification-service-hj29.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "notification-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/api/notification/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "auth-service-4tej.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "auth-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/auth/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "post-service-wxf7.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "post-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/post/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "comment-service-8gdp.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "comment-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/comment/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "category-service-v49w.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "category-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/category/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "media-service-tyol.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "media-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/media/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "newsletter-service-3r22.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "newsletter-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/newsletter/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     },
     {
       "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [ { "Host": "notification-service-hj29.onrender.com", "Port": 443 } ],
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [ { "Host": "notification-service", "Port": 8080 } ],
       "UpstreamPathTemplate": "/notification/swagger/{everything}",
       "UpstreamHttpMethod": [ "Get" ]
     }
