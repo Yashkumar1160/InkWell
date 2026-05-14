@@ -106,5 +106,16 @@ namespace InkWell.Newsletter.Controllers
             await newsletterService.UpdatePreferencesByUserId(userId, dto);
             return Ok(new { message = "Preferences updated." });
         }
+
+        [HttpDelete("my-subscription")]
+        [Authorize]
+        public async Task<IActionResult> UnsubscribeMe()
+        {
+            string idStr = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+            int userId = int.Parse(idStr);
+
+            await newsletterService.UnsubscribeByUserId(userId);
+            return Ok(new { message = "You have been unsubscribed from our newsletter." });
+        }
     }
 }
