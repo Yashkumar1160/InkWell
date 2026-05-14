@@ -16,6 +16,12 @@ services:
         value: "0"
       - key: Redis__ConnectionString
         value: red-d81dfsd7vvec73f0k0jg:6379
+      - key: Jwt__Secret
+        value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
+      - key: Jwt__Issuer
+        value: InkWell
+      - key: Jwt__Audience
+        value: InkWellUsers
 
   - type: web
     name: post-service
@@ -36,6 +42,12 @@ services:
         value: red-d81dfsd7vvec73f0k0jg:6379
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
+      - key: Jwt__Secret
+        value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
+      - key: Jwt__Issuer
+        value: InkWell
+      - key: Jwt__Audience
+        value: InkWellUsers
 
   - type: web
     name: category-service
@@ -54,6 +66,12 @@ services:
         value: "0"
       - key: Redis__ConnectionString
         value: red-d81dfsd7vvec73f0k0jg:6379
+      - key: Jwt__Secret
+        value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
+      - key: Jwt__Issuer
+        value: InkWell
+      - key: Jwt__Audience
+        value: InkWellUsers
 
   - type: web
     name: comment-service
@@ -74,6 +92,12 @@ services:
         value: red-d81dfsd7vvec73f0k0jg:6379
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
+      - key: Jwt__Secret
+        value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
+      - key: Jwt__Issuer
+        value: InkWell
+      - key: Jwt__Audience
+        value: InkWellUsers
 
   - type: web
     name: media-service
@@ -94,6 +118,12 @@ services:
         value: red-d81dfsd7vvec73f0k0jg:6379
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
+      - key: Jwt__Secret
+        value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
+      - key: Jwt__Issuer
+        value: InkWell
+      - key: Jwt__Audience
+        value: InkWellUsers
 
   - type: web
     name: newsletter-service
@@ -114,6 +144,12 @@ services:
         value: red-d81dfsd7vvec73f0k0jg:6379
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
+      - key: Jwt__Secret
+        value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
+      - key: Jwt__Issuer
+        value: InkWell
+      - key: Jwt__Audience
+        value: InkWellUsers
 
   - type: web
     name: notification-service
@@ -134,6 +170,12 @@ services:
         value: red-d81dfsd7vvec73f0k0jg:6379
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
+      - key: Jwt__Secret
+        value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
+      - key: Jwt__Issuer
+        value: InkWell
+      - key: Jwt__Audience
+        value: InkWellUsers
 
   - type: web
     name: inkwell-gateway
