@@ -21,10 +21,18 @@ namespace InkWell.Newsletter.Controllers
         }
 
         [HttpPost("subscribe")]
+        [Authorize]
         public async Task<IActionResult> Subscribe([FromBody] SubscribeDTO dto)
         {
+            // Enforce logged in user's details
+            string idStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            string email = User.FindFirstValue(ClaimTypes.Email);
+            
+            dto.UserId = int.Parse(idStr);
+            dto.Email = email;
+
             SubscriberResponseDTO result = await newsletterService.Subscribe(dto);
-            return Ok(new { message = "Subscription created. Please check your email to confirm.", data = result });
+            return Ok(new { message = "Subscription activated. Welcome to our newsletter!", data = result });
         }
 
         [HttpGet("confirm/{token}")]

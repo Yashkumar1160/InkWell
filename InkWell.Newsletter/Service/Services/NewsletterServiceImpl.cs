@@ -27,31 +27,44 @@ namespace InkWell.Newsletter.Services.Services
         // Method to subscribe with email
         public async Task<SubscriberResponseDTO> Subscribe(SubscribeDTO dto)
         {
-            // check if email is already subscribed
+            if (dto.UserId == null)
+            {
+                throw new Exception("You must be logged in to subscribe to the newsletter.");
+            }
+
+            // check if user already has a subscription record
+            Subscriber existingByUser = await subscriberRepository.GetByUserId(dto.UserId.Value);
+            
+            if (existingByUser != null)
+            {
+                // If they are already active
+                if (existingByUser.Status == "ACTIVE")
+                {
+                    throw new Exception("You are already subscribed to our newsletter.");
+                }
+
+                // If they were unsubscribed, reactivate them
+                existingByUser.Status = "ACTIVE";
+                existingByUser.Email = dto.Email; // Update email in case they changed it in Auth
+                existingByUser.UnsubscribedAt = null;
+                await subscriberRepository.Update(existingByUser);
+                return MapToDTO(existingByUser);
+            }
+
+            // also check if email is already taken by someone else (unlikely but safe)
             bool emailExists = await subscriberRepository.EmailExists(dto.Email);
             if (emailExists == true)
             {
-                // if they previously unsubscribed let them resubscribe
-                Subscriber existing = await subscriberRepository.GetByEmail(dto.Email);
-
-                // Update UserId if it was missing but provided now
-                if (existing.UserId == null && dto.UserId != null)
+                Subscriber existingByEmail = await subscriberRepository.GetByEmail(dto.Email);
+                
+                // If it belongs to someone else
+                if (existingByEmail.UserId != dto.UserId)
                 {
-                    existing.UserId = dto.UserId;
+                    throw new Exception("This email is already associated with another subscription.");
                 }
-
-                // If they are not active, activate them
-                if (existing.Status != "ACTIVE")
-                {
-                    existing.Status = "ACTIVE";
-                    existing.UnsubscribedAt = null;
-                    await subscriberRepository.Update(existing);
-                }
-
-                return MapToDTO(existing);
             }
 
-            // create new subscriber with PENDING status
+            // create new subscriber with ACTIVE status
             Subscriber newSubscriber = new Subscriber();
             newSubscriber.Email = dto.Email;
             newSubscriber.FullName = dto.FullName;
@@ -61,8 +74,8 @@ namespace InkWell.Newsletter.Services.Services
 
             Subscriber saved = await subscriberRepository.Add(newSubscriber);
 
-            // send confirmation email immediately after saving
-            await SendConfirmationEmail(saved);
+            // send welcome email
+            await SendWelcomeEmail(saved);
 
             return MapToDTO(saved);
         }
