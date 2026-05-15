@@ -154,7 +154,7 @@ namespace InkWell.Newsletter.Controllers
             SubscriberResponseDTO result = await newsletterService.GetByUserId(userId);
             if (result == null)
             {
-                return NotFound(new { message = "No subscription found." });
+                return Ok(null);
             }
 
             return Ok(result);
