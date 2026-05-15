@@ -29,6 +29,10 @@ builder.Services.AddDbContext<NewsletterDbContext>(options =>
 {
     options.UseNpgsql(connUrl);
 });
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = configuration["Redis:ConnectionString"];
+});
 
 
 // RabbitMQ with MassTransit

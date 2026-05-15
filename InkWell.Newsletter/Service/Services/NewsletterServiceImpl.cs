@@ -8,6 +8,7 @@ using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
 using MassTransit;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace InkWell.Newsletter.Services.Services
 {
@@ -16,12 +17,15 @@ namespace InkWell.Newsletter.Services.Services
         private readonly ISubscriberRepository subscriberRepository;
         private readonly IConfiguration configuration;
         private readonly IPublishEndpoint publishEndpoint;
+        private readonly IDistributedCache cache;
 
-        public NewsletterServiceImpl(ISubscriberRepository repository, IConfiguration config, IPublishEndpoint publishEndpoint)
+
+        public NewsletterServiceImpl(ISubscriberRepository repository, IConfiguration config, IPublishEndpoint publishEndpoint, IDistributedCache cache)
         {
             subscriberRepository = repository;
             configuration = config;
             this.publishEndpoint = publishEndpoint;
+            this.cache = cache;
         }
 
         // Method to subscribe with email
@@ -48,6 +52,7 @@ namespace InkWell.Newsletter.Services.Services
                 existingByUser.Email = dto.Email; // Update email in case they changed it in Auth
                 existingByUser.UnsubscribedAt = null;
                 await subscriberRepository.Update(existingByUser);
+                try { await cache.RemoveAsync($"sub_user_{existingByUser.UserId}"); } catch { /* Redis down */ }
                 return MapToDTO(existingByUser);
             }
 
@@ -367,12 +372,27 @@ namespace InkWell.Newsletter.Services.Services
 
         public async Task<SubscriberResponseDTO> GetByUserId(int userId)
         {
+            string cacheKey = $"sub_user_{userId}";
+            string cachedData = null;
+            try { cachedData = await cache.GetStringAsync(cacheKey); } catch { /* Redis down */ }
+
+            if (!string.IsNullOrEmpty(cachedData))
+            {
+                try { return JsonSerializer.Deserialize<SubscriberResponseDTO>(cachedData); } catch { /* Corrupt cache */ }
+            }
+
             Subscriber subscriber = await subscriberRepository.GetByUserId(userId);
             if (subscriber == null)
             {
                 return null;
             }
-            return MapToDTO(subscriber);
+            
+            var result = MapToDTO(subscriber);
+            
+            var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) };
+            try { await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions); } catch { /* Redis down */ }
+
+            return result;
         }
 
         // Method to send confirmation email with token link

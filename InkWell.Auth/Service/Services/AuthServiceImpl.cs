@@ -465,6 +465,7 @@ namespace AuthService.Services.Service
                 UserId = user.UserId,
                 Username = user.Username,
                 Email = user.Email,
+                FullName = user.FullName,
                 Role = user.Role,
                 Token = GenerateToken(user)
             };
