@@ -57,7 +57,7 @@ namespace InkWell.Category.Service.Services
             CategoryModel saved = await categoryRepository.AddCategory(newCategory);
           
             // Invalidate cache
-            await cache.RemoveAsync("all_categories");
+            try { await cache.RemoveAsync("all_categories"); } catch { /* Redis down */ }
 
             return MapCategoryToDTO(saved);
         }
@@ -159,7 +159,7 @@ namespace InkWell.Category.Service.Services
             CategoryModel updated = await categoryRepository.UpdateCategory(category);
            
             // Invalidate cache
-            await cache.RemoveAsync("all_categories");
+            try { await cache.RemoveAsync("all_categories"); } catch { /* Redis down */ }
 
             return MapCategoryToDTO(updated);
         }
