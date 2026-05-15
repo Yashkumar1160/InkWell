@@ -101,8 +101,8 @@ namespace InkWell.Newsletter.Services.Services
 
             Subscriber saved = await subscriberRepository.Add(newSubscriber);
 
-            // send welcome email in the background
-            Task.Run(async () => await SendWelcomeEmail(saved));
+            // send welcome email
+            await SendWelcomeEmail(saved);
 
             return MapToDTO(saved);
         }
@@ -140,8 +140,8 @@ namespace InkWell.Newsletter.Services.Services
             subscriber.Status = "ACTIVE";
             await subscriberRepository.Update(subscriber);
 
-            // send welcome email in the background
-            Task.Run(async () => await SendWelcomeEmail(subscriber));
+            // send welcome email
+            await SendWelcomeEmail(subscriber);
         }
 
         // Method to one click unsubscribe via token link in email

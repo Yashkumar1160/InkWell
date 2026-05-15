@@ -262,10 +262,9 @@ namespace InkWell.Post.Service.Services
             PostModel updated = await postRepository.Update(post);
 
             // Invalidate cache so the new post shows up in the list
-            await cache.RemoveAsync("published_posts");
+            try { await cache.RemoveAsync("published_posts"); } catch { /* Redis down */ }
 
-            // now call Newsletter Service to notify subscribers
-            // we do this after saving so the post is definitely published first
+            // notify subscribers about the new post
             await NotifyNewsletterService(updated);
 
             return MapToDTO(updated);
@@ -292,6 +291,7 @@ namespace InkWell.Post.Service.Services
             post.UpdatedAt = DateTime.UtcNow;
 
             PostModel updated = await postRepository.Update(post);
+            try { await cache.RemoveAsync("published_posts"); } catch { }
             return MapToDTO(updated);
         }
 
@@ -315,6 +315,7 @@ namespace InkWell.Post.Service.Services
             post.UpdatedAt = DateTime.UtcNow;
 
             PostModel updated = await postRepository.Update(post);
+            try { await cache.RemoveAsync("published_posts"); } catch { }
             return MapToDTO(updated);
         }
 
@@ -364,7 +365,7 @@ namespace InkWell.Post.Service.Services
             await publishEndpoint.Publish(new PostDeletedEvent { PostId = postId });
 
             // Invalidate cache
-            await cache.RemoveAsync("published_posts");
+            try { await cache.RemoveAsync("published_posts"); } catch { /* Redis down */ }
         }
 
         // Method to increase views count
@@ -384,7 +385,7 @@ namespace InkWell.Post.Service.Services
             await postRepository.Update(post);
 
             // Invalidate home page cache
-            await cache.RemoveAsync("published_posts");
+            try { await cache.RemoveAsync("published_posts"); } catch { /* Redis down */ }
         }
 
         // Method to increase like count 
@@ -412,7 +413,7 @@ namespace InkWell.Post.Service.Services
             await postRepository.AddLike(new LikeModel { PostId = postId, UserId = actorId });
 
             // Invalidate home page cache so counts are accurate
-            await cache.RemoveAsync("published_posts");
+            try { await cache.RemoveAsync("published_posts"); } catch { /* Redis down */ }
 
             // notify post author that someone liked their post
             await NotifyNotificationService(postId, post.AuthorId, actorId, actorName);
@@ -468,7 +469,7 @@ namespace InkWell.Post.Service.Services
                 await postRepository.RemoveLike(postId, actorId);
 
                 // Invalidate home page cache so counts are accurate
-                await cache.RemoveAsync("published_posts");
+                try { await cache.RemoveAsync("published_posts"); } catch { /* Redis down */ }
             }
         }
 

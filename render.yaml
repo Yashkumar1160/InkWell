@@ -138,6 +138,10 @@ services:
           property: connectionString
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
+      - key: MediaSettings__BaseUrl
+        value: https://inkwell-gateway-9rf3.onrender.com
+      - key: MediaSettings__UploadFolder
+        value: /app/wwwroot/uploads
       - key: Jwt__Secret
         value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
       - key: Jwt__Issuer
