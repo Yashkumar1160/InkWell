@@ -6,7 +6,7 @@ services:
     dockerContext: InkWell.Auth
     dockerfilePath: InkWell.Auth/Dockerfile
     buildFilter:
-      includedPaths:
+      paths:
         - "InkWell.Auth/**"
     envVars:
       - key: ConnectionStrings__AuthDB
@@ -33,7 +33,7 @@ services:
     dockerContext: InkWell.Post
     dockerfilePath: InkWell.Post/Dockerfile
     buildFilter:
-      includedPaths:
+      paths:
         - "InkWell.Post/**"
     envVars:
       - key: ConnectionStrings__PostDB
@@ -62,7 +62,7 @@ services:
     dockerContext: InkWell.Category
     dockerfilePath: InkWell.Category/Dockerfile
     buildFilter:
-      includedPaths:
+      paths:
         - "InkWell.Category/**"
     envVars:
       - key: ConnectionStrings__CategoryDB
@@ -89,7 +89,7 @@ services:
     dockerContext: InkWell.Comment
     dockerfilePath: InkWell.Comment/Dockerfile
     buildFilter:
-      includedPaths:
+      paths:
         - "InkWell.Comment/**"
     envVars:
       - key: ConnectionStrings__CommentDB
@@ -118,7 +118,7 @@ services:
     dockerContext: InkWell.Media
     dockerfilePath: InkWell.Media/Dockerfile
     buildFilter:
-      includedPaths:
+      paths:
         - "InkWell.Media/**"
     envVars:
       - key: ConnectionStrings__MediaDB
@@ -147,7 +147,7 @@ services:
     dockerContext: InkWell.Newsletter
     dockerfilePath: InkWell.Newsletter/Dockerfile
     buildFilter:
-      includedPaths:
+      paths:
         - "InkWell.Newsletter/**"
         - "InkWell.Shared/**" # If shared logic exists
     envVars:
@@ -177,7 +177,7 @@ services:
     dockerContext: InkWell.Notification
     dockerfilePath: InkWell.Notification/Dockerfile
     buildFilter:
-      includedPaths:
+      paths:
         - "InkWell.Notification/**"
     envVars:
       - key: ConnectionStrings__NotificationDB
