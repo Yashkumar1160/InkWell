@@ -1,0 +1,12 @@
+q
+fC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\obj\Debug\net8.0\InkWell.Tests.AssemblyInfo.csutf-8‚
+wC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.csutf-8s
+hC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\obj\Debug\net8.0\InkWell.Tests.GlobalUsings.g.csutf-8h
+_C:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\Newsletter\NewsletterControllerTests.csutf-8d
+[C:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\Category\CategoryControllerTests.csutf-8\
+SC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\Auth\AuthControllerTests.csutf-8^
+UC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\Media\MediaControllerTests.csutf-8\
+SC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\Post\PostControllerTests.csutf-8}
+rC:\Users\yk444\.nuget\packages\microsoft.net.test.sdk\17.8.0\build\netcoreapp3.1\Microsoft.NET.Test.Sdk.Program.csutf-8l
+cC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\Notification\NotificationControllerTests.csutf-8b
+YC:\Users\yk444\Videos\BTECH\DUMMY\Inkwell\InkWell.Tests\Comment\CommentControllerTests.csutf-8
