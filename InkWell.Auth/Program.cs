@@ -139,6 +139,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// Apply Migrations
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+    try { var databaseCreator = db.GetService<IRelationalDatabaseCreator>(); databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
+}
+
 // Auto-create Admin User
 using (var scope = app.Services.CreateScope())
 {
@@ -171,13 +178,6 @@ using (var scope = app.Services.CreateScope())
         existingByEmail.Role = "ADMIN";
         await context.SaveChangesAsync();
     }
-}
-
-// Apply Migrations
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-    try { var databaseCreator = db.GetService<IRelationalDatabaseCreator>(); databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
 }
 
 app.Run();
