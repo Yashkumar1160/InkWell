@@ -18,7 +18,10 @@ services:
       - key: DOTNET_gcServer
         value: "0"
       - key: Redis__ConnectionString
-        value: red-d81dfsd7vvec73f0k0jg:6379
+        fromService:
+          type: redis
+          name: inkwell-redis
+          property: connectionString
       - key: Jwt__Secret
         value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
       - key: Jwt__Issuer
@@ -45,7 +48,10 @@ services:
       - key: DOTNET_gcServer
         value: "0"
       - key: Redis__ConnectionString
-        value: red-d81dfsd7vvec73f0k0jg:6379
+        fromService:
+          type: redis
+          name: inkwell-redis
+          property: connectionString
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
       - key: Jwt__Secret
@@ -74,7 +80,10 @@ services:
       - key: DOTNET_gcServer
         value: "0"
       - key: Redis__ConnectionString
-        value: red-d81dfsd7vvec73f0k0jg:6379
+        fromService:
+          type: redis
+          name: inkwell-redis
+          property: connectionString
       - key: Jwt__Secret
         value: FPICUVNej03KufTJmHzbToS8jMYHWXIuUkNRGxWHoAg=
       - key: Jwt__Issuer
@@ -101,7 +110,10 @@ services:
       - key: DOTNET_gcServer
         value: "0"
       - key: Redis__ConnectionString
-        value: red-d81dfsd7vvec73f0k0jg:6379
+        fromService:
+          type: redis
+          name: inkwell-redis
+          property: connectionString
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
       - key: Jwt__Secret
@@ -130,7 +142,10 @@ services:
       - key: DOTNET_gcServer
         value: "0"
       - key: Redis__ConnectionString
-        value: red-d81dfsd7vvec73f0k0jg:6379
+        fromService:
+          type: redis
+          name: inkwell-redis
+          property: connectionString
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
       - key: Jwt__Secret
@@ -160,7 +175,10 @@ services:
       - key: DOTNET_gcServer
         value: "0"
       - key: Redis__ConnectionString
-        value: red-d81dfsd7vvec73f0k0jg:6379
+        fromService:
+          type: redis
+          name: inkwell-redis
+          property: connectionString
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
       - key: Jwt__Secret
@@ -189,7 +207,10 @@ services:
       - key: DOTNET_gcServer
         value: "0"
       - key: Redis__ConnectionString
-        value: red-d81dfsd7vvec73f0k0jg:6379
+        fromService:
+          type: redis
+          name: inkwell-redis
+          property: connectionString
       - key: RabbitMQ__ConnectionString
         value: amqps://zpaoakqq:lFC72m-zIIRXT_kctJz8AkaSuQ5eaU0y@beaver.rmq.cloudamqp.com/zpaoakqq
       - key: Jwt__Secret
@@ -214,6 +235,11 @@ services:
         value: "0"
       - key: DOTNET_gcServer
         value: "0"
+
+  - type: redis
+    name: inkwell-redis
+    plan: free
+    ipAllowList: [] # Internal only
 
 databases:
   - name: inkwell-db
