@@ -206,7 +206,7 @@ services:
     dockerContext: InkWell.Gateway
     dockerfilePath: InkWell.Gateway/Dockerfile
     buildFilter:
-      includedPaths:
+      paths:
         - "InkWell.Gateway/**"
         - "render.yaml" # Build gateway if routing changes
     envVars:
