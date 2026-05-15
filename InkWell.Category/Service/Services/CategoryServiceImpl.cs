@@ -452,6 +452,9 @@ namespace InkWell.Category.Service.Services
             // increment category PostCount
             category.PostCount = category.PostCount + 1;
             await categoryRepository.UpdateCategory(category);
+
+            // Invalidate cache for this post
+            try { await cache.RemoveAsync($"post_categories_{postId}"); } catch { /* Redis down */ }
         }
 
         // Method to remove a tag from a post
@@ -476,6 +479,9 @@ namespace InkWell.Category.Service.Services
                 category.PostCount = category.PostCount - 1;
                 await categoryRepository.UpdateCategory(category);
             }
+
+            // Invalidate cache for this post
+            try { await cache.RemoveAsync($"post_categories_{postId}"); } catch { /* Redis down */ }
         }
 
         // Method to get categories by a post
