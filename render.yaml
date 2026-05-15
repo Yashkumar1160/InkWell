@@ -5,6 +5,9 @@ services:
     plan: free
     dockerContext: InkWell.Auth
     dockerfilePath: InkWell.Auth/Dockerfile
+    buildFilter:
+      includedPaths:
+        - "InkWell.Auth/**"
     envVars:
       - key: ConnectionStrings__AuthDB
         fromDatabase:
@@ -29,6 +32,9 @@ services:
     plan: free
     dockerContext: InkWell.Post
     dockerfilePath: InkWell.Post/Dockerfile
+    buildFilter:
+      includedPaths:
+        - "InkWell.Post/**"
     envVars:
       - key: ConnectionStrings__PostDB
         fromDatabase:
@@ -55,6 +61,9 @@ services:
     plan: free
     dockerContext: InkWell.Category
     dockerfilePath: InkWell.Category/Dockerfile
+    buildFilter:
+      includedPaths:
+        - "InkWell.Category/**"
     envVars:
       - key: ConnectionStrings__CategoryDB
         fromDatabase:
@@ -79,6 +88,9 @@ services:
     plan: free
     dockerContext: InkWell.Comment
     dockerfilePath: InkWell.Comment/Dockerfile
+    buildFilter:
+      includedPaths:
+        - "InkWell.Comment/**"
     envVars:
       - key: ConnectionStrings__CommentDB
         fromDatabase:
@@ -105,6 +117,9 @@ services:
     plan: free
     dockerContext: InkWell.Media
     dockerfilePath: InkWell.Media/Dockerfile
+    buildFilter:
+      includedPaths:
+        - "InkWell.Media/**"
     envVars:
       - key: ConnectionStrings__MediaDB
         fromDatabase:
@@ -131,6 +146,10 @@ services:
     plan: free
     dockerContext: InkWell.Newsletter
     dockerfilePath: InkWell.Newsletter/Dockerfile
+    buildFilter:
+      includedPaths:
+        - "InkWell.Newsletter/**"
+        - "InkWell.Shared/**" # If shared logic exists
     envVars:
       - key: ConnectionStrings__NewsletterDB
         fromDatabase:
@@ -157,6 +176,9 @@ services:
     plan: free
     dockerContext: InkWell.Notification
     dockerfilePath: InkWell.Notification/Dockerfile
+    buildFilter:
+      includedPaths:
+        - "InkWell.Notification/**"
     envVars:
       - key: ConnectionStrings__NotificationDB
         fromDatabase:
@@ -183,6 +205,10 @@ services:
     plan: free
     dockerContext: InkWell.Gateway
     dockerfilePath: InkWell.Gateway/Dockerfile
+    buildFilter:
+      includedPaths:
+        - "InkWell.Gateway/**"
+        - "render.yaml" # Build gateway if routing changes
     envVars:
       - key: DOTNET_EnableDiagnostics
         value: "0"
