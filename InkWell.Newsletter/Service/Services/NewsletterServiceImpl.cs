@@ -365,6 +365,16 @@ namespace InkWell.Newsletter.Services.Services
         }
 
 
+        public async Task<SubscriberResponseDTO> GetByUserId(int userId)
+        {
+            Subscriber subscriber = await subscriberRepository.GetByUserId(userId);
+            if (subscriber == null)
+            {
+                return null;
+            }
+            return MapToDTO(subscriber);
+        }
+
         // Method to send confirmation email with token link
         private async Task SendConfirmationEmail(Subscriber subscriber)
         {

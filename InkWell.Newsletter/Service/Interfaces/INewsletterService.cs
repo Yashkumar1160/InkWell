@@ -45,5 +45,8 @@ namespace InkWell.Newsletter.Services.Interfaces
 
         // Method to unsubscribe by user id and email (for logged in users)
         Task UnsubscribeByUser(int userId, string email);
+
+        // Method to get subscription status by user id
+        Task<SubscriberResponseDTO> GetByUserId(int userId);
     }
 }

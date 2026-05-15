@@ -143,5 +143,21 @@ namespace InkWell.Newsletter.Controllers
             await newsletterService.UnsubscribeByUser(userId, email);
             return Ok(new { message = "You have been unsubscribed from our newsletter." });
         }
+
+        [HttpGet("my-subscription")]
+        [Authorize]
+        public async Task<IActionResult> GetMySubscription()
+        {
+            string idStr = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+            int userId = int.Parse(idStr);
+
+            SubscriberResponseDTO result = await newsletterService.GetByUserId(userId);
+            if (result == null)
+            {
+                return NotFound(new { message = "No subscription found." });
+            }
+
+            return Ok(result);
+        }
     }
 }
