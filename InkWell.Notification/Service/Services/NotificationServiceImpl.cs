@@ -41,9 +41,22 @@ namespace InkWell.Notification.Services.Services
         // Method to send notification to multiple recipients at once (Admin broadcast)
         public async Task SendBulk(BroadcastDTO dto)
         {
+            // If no recipients provided, send as a global system notification (RecipientId = 0)
             if (dto.RecipientIds == null || dto.RecipientIds.Count == 0)
             {
-                throw new Exception("No recipients provided.");
+                NotificationModel notification = new NotificationModel();
+                notification.RecipientId = 0; // Global
+                notification.ActorId = 0;      
+                notification.Type = "BROADCAST";
+                notification.Title = dto.Title ?? "System Broadcast";
+                notification.Message = dto.Message;
+                notification.RelatedId = 0;
+                notification.RelatedType = "System";
+                notification.IsRead = false;
+                notification.CreatedAt = DateTime.UtcNow;
+
+                await notificationRepository.Add(notification);
+                return;
             }
 
             foreach (int recipientId in dto.RecipientIds)

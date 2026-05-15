@@ -10,9 +10,7 @@ services:
         - "InkWell.Auth/**"
     envVars:
       - key: ConnectionStrings__AuthDB
-        fromDatabase:
-          name: inkwell-db
-          property: connectionString
+        value: postgresql://inkwell_zq18_user:S7NL6MZAR5fgMPOcXpsVqfoVNnCICPXO@dpg-d83bn33eo5us73b431b0-a/inkwell_zq18
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -40,9 +38,7 @@ services:
         - "InkWell.Post/**"
     envVars:
       - key: ConnectionStrings__PostDB
-        fromDatabase:
-          name: inkwell-db
-          property: connectionString
+        value: postgresql://inkwell_zq18_user:S7NL6MZAR5fgMPOcXpsVqfoVNnCICPXO@dpg-d83bn33eo5us73b431b0-a/inkwell_zq18
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -72,9 +68,7 @@ services:
         - "InkWell.Category/**"
     envVars:
       - key: ConnectionStrings__CategoryDB
-        fromDatabase:
-          name: inkwell-db
-          property: connectionString
+        value: postgresql://inkwell_zq18_user:S7NL6MZAR5fgMPOcXpsVqfoVNnCICPXO@dpg-d83bn33eo5us73b431b0-a/inkwell_zq18
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -102,9 +96,7 @@ services:
         - "InkWell.Comment/**"
     envVars:
       - key: ConnectionStrings__CommentDB
-        fromDatabase:
-          name: inkwell-db
-          property: connectionString
+        value: postgresql://inkwell_zq18_user:S7NL6MZAR5fgMPOcXpsVqfoVNnCICPXO@dpg-d83bn33eo5us73b431b0-a/inkwell_zq18
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -134,9 +126,7 @@ services:
         - "InkWell.Media/**"
     envVars:
       - key: ConnectionStrings__MediaDB
-        fromDatabase:
-          name: inkwell-db
-          property: connectionString
+        value: postgresql://inkwell_zq18_user:S7NL6MZAR5fgMPOcXpsVqfoVNnCICPXO@dpg-d83bn33eo5us73b431b0-a/inkwell_zq18
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -167,9 +157,7 @@ services:
         - "InkWell.Shared/**" # If shared logic exists
     envVars:
       - key: ConnectionStrings__NewsletterDB
-        fromDatabase:
-          name: inkwell-db
-          property: connectionString
+        value: postgresql://inkwell_zq18_user:S7NL6MZAR5fgMPOcXpsVqfoVNnCICPXO@dpg-d83bn33eo5us73b431b0-a/inkwell_zq18
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -199,9 +187,7 @@ services:
         - "InkWell.Notification/**"
     envVars:
       - key: ConnectionStrings__NotificationDB
-        fromDatabase:
-          name: inkwell-db
-          property: connectionString
+        value: postgresql://inkwell_zq18_user:S7NL6MZAR5fgMPOcXpsVqfoVNnCICPXO@dpg-d83bn33eo5us73b431b0-a/inkwell_zq18
       - key: DOTNET_EnableDiagnostics
         value: "0"
       - key: DOTNET_gcServer
@@ -240,8 +226,3 @@ services:
     name: inkwell-redis
     plan: free
     ipAllowList: [] # Internal only
-
-databases:
-  - name: inkwell-db
-    databaseName: inkwell
-    plan: free
