@@ -266,9 +266,11 @@ namespace InkWell.Newsletter.Services.Services
         public async Task SendPostNotification(NewPostNotificationDTO dto)
         {
             List<Subscriber> subscribers = await subscriberRepository.GetByStatus("ACTIVE");
+            Console.WriteLine($"[Newsletter Service] Notifying {subscribers.Count} active subscribers about new post: {dto.Title}");
 
             foreach (Subscriber subscriber in subscribers)
             {
+                Console.WriteLine($"[Newsletter Service] Sending email to: {subscriber.Email}");
                 string subject = "New Post on InkWell: " + dto.Title;
 
                 string unsubscribeLink = "http://localhost:4200/newsletter/unsubscribe/" + subscriber.Token;
@@ -285,6 +287,7 @@ namespace InkWell.Newsletter.Services.Services
 
                 await SendEmail(subscriber.Email, subscriber.FullName, subject, body);
             }
+            Console.WriteLine($"[Newsletter Service] Finished notifying subscribers for PostId: {dto.PostId}");
         }
 
         // Method to update subscriber preferences

@@ -247,6 +247,7 @@ namespace InkWell.Notification.Services.Services
         // Method to handle post published event from post service
         public async Task HandlePostPublished(int postId, string title, int authorId)
         {
+            Console.WriteLine($"[Notification Service] Creating global notification for new post: {title} (ID: {postId})");
             // 0 means global/system-wide
             await Send(
                 recipientId: 0,
@@ -257,6 +258,7 @@ namespace InkWell.Notification.Services.Services
                 relatedId: postId,
                 relatedType: "Post"
             );
+            Console.WriteLine($"[Notification Service] Global notification created for PostId: {postId}");
         }
 
         // Method to handle mention event from comment service

@@ -521,6 +521,7 @@ namespace InkWell.Post.Service.Services
         {
             try
             {
+                Console.WriteLine($"[Post Service] Attempting to publish PostPublishedEvent for PostId: {post.PostId}");
                 // Publish event to RabbitMQ
                 await publishEndpoint.Publish(new PostPublishedEvent
                 {
@@ -529,11 +530,12 @@ namespace InkWell.Post.Service.Services
                     Slug = post.Slug,
                     AuthorId = post.AuthorId
                 });
+                Console.WriteLine($"[Post Service] PostPublishedEvent published successfully for PostId: {post.PostId}");
             }
             catch (Exception ex)
             {
                 // log error but don't fail the request
-                Console.WriteLine($"RabbitMQ Error: {ex.Message}");
+                Console.WriteLine($"[Post Service] RabbitMQ Error: {ex.Message}");
             }
         }
 

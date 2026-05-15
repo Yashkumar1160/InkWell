@@ -17,6 +17,7 @@ namespace InkWell.Newsletter.Messaging.Consumers
         public async Task Consume(ConsumeContext<PostPublishedEvent> context)
         {
             var message = context.Message;
+            Console.WriteLine($"[Newsletter Service] Received PostPublishedEvent for PostId: {message.PostId}, Title: {message.Title}");
             
             var dto = new NewPostNotificationDTO
             {
@@ -27,6 +28,7 @@ namespace InkWell.Newsletter.Messaging.Consumers
             };
 
             await _newsletterService.SendPostNotification(dto);
+            Console.WriteLine($"[Newsletter Service] Successfully processed PostPublishedEvent for PostId: {message.PostId}");
         }
     }
 }
