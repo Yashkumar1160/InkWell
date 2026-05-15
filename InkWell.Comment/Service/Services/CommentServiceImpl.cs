@@ -91,8 +91,8 @@ namespace InkWell.Comment.Services.Services
             CommentModel saved = await commentRepository.Add(newComment);
             
             // Invalidate cache for this post (Aggressive)
-            await cache.RemoveAsync($"comments_post_{dto.PostId}");
-            await cache.RemoveAsync($"comments_post_{saved.PostId}");
+            try { await cache.RemoveAsync($"comments_post_{dto.PostId}"); } catch { /* Redis down */ }
+            try { await cache.RemoveAsync($"comments_post_{saved.PostId}"); } catch { /* Redis down */ }
 
             // call notification service to alert the post author
             await NotifyNotificationService(saved, authorId, actorName, postAuthorId, parentCommentAuthorId);
@@ -104,11 +104,12 @@ namespace InkWell.Comment.Services.Services
         public async Task<List<CommentResponseDTO>> GetByPost(int postId)
         {
             string cacheKey = $"comments_post_{postId}";
-            string cachedData = await cache.GetStringAsync(cacheKey);
+            string cachedData = null;
+            try { cachedData = await cache.GetStringAsync(cacheKey); } catch { /* Redis down */ }
 
             if (!string.IsNullOrEmpty(cachedData))
             {
-                return JsonSerializer.Deserialize<List<CommentResponseDTO>>(cachedData);
+                try { return JsonSerializer.Deserialize<List<CommentResponseDTO>>(cachedData); } catch { /* Corrupt cache */ }
             }
 
             // get comments on post using post id 
@@ -123,7 +124,7 @@ namespace InkWell.Comment.Services.Services
             }
 
             var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) };
-            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+            try { await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions); } catch { /* Redis down */ }
 
             return result;
         }
@@ -201,7 +202,7 @@ namespace InkWell.Comment.Services.Services
             CommentModel updated = await commentRepository.Update(comment);
 
             // Invalidate cache
-            await cache.RemoveAsync($"comments_post_{comment.PostId}");
+            try { await cache.RemoveAsync($"comments_post_{comment.PostId}"); } catch { /* Redis down */ }
 
             return MapToDTO(updated);
         }
@@ -246,7 +247,7 @@ namespace InkWell.Comment.Services.Services
             }
 
             // Invalidate cache
-            await cache.RemoveAsync($"comments_post_{comment.PostId}");
+            try { await cache.RemoveAsync($"comments_post_{comment.PostId}"); } catch { /* Redis down */ }
         }
 
         // Method to approve a pending comment

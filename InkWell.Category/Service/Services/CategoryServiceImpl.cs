@@ -92,11 +92,12 @@ namespace InkWell.Category.Service.Services
         public async Task<List<CategoryResponseDTO>> GetAllCategories()
         {
             string cacheKey = "all_categories";
-            string cachedData = await cache.GetStringAsync(cacheKey);
+            string cachedData = null;
+            try { cachedData = await cache.GetStringAsync(cacheKey); } catch { /* Redis down */ }
 
             if (!string.IsNullOrEmpty(cachedData))
             {
-                return JsonSerializer.Deserialize<List<CategoryResponseDTO>>(cachedData);
+                try { return JsonSerializer.Deserialize<List<CategoryResponseDTO>>(cachedData); } catch { /* Corrupt cache */ }
             }
 
             List<CategoryModel> categories = await categoryRepository.GetAllCategories();
@@ -108,7 +109,7 @@ namespace InkWell.Category.Service.Services
             }
             
             var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1) };
-            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+            try { await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions); } catch { /* Redis down */ }
 
             return result;
         }
@@ -176,7 +177,7 @@ namespace InkWell.Category.Service.Services
             await categoryRepository.DeleteCategory(id);
 
             // Invalidate cache
-            await cache.RemoveAsync("all_categories");
+            try { await cache.RemoveAsync("all_categories"); } catch { /* Redis down */ }
         }
 
 
@@ -203,7 +204,7 @@ namespace InkWell.Category.Service.Services
             Tag saved = await categoryRepository.AddTag(newTag);
             
             // Invalidate cache
-            await cache.RemoveAsync("all_tags");
+            try { await cache.RemoveAsync("all_tags"); } catch { /* Redis down */ }
 
             return MapTagToDTO(saved);
         }
@@ -238,11 +239,12 @@ namespace InkWell.Category.Service.Services
         public async Task<List<TagResponseDTO>> GetAllTags()
         {
             string cacheKey = "all_tags";
-            string cachedData = await cache.GetStringAsync(cacheKey);
+            string cachedData = null;
+            try { cachedData = await cache.GetStringAsync(cacheKey); } catch { /* Redis down */ }
 
             if (!string.IsNullOrEmpty(cachedData))
             {
-                return JsonSerializer.Deserialize<List<TagResponseDTO>>(cachedData);
+                try { return JsonSerializer.Deserialize<List<TagResponseDTO>>(cachedData); } catch { /* Corrupt cache */ }
             }
 
             List<Tag> tags = await categoryRepository.GetAllTags();
@@ -254,7 +256,7 @@ namespace InkWell.Category.Service.Services
             }
           
             var cacheOptions = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1) };
-            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+            try { await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions); } catch { /* Redis down */ }
 
             return result;
         }
@@ -286,7 +288,7 @@ namespace InkWell.Category.Service.Services
             await categoryRepository.DeleteTag(id);
 
             // Invalidate cache
-            await cache.RemoveAsync("all_tags");
+            try { await cache.RemoveAsync("all_tags"); } catch { /* Redis down */ }
         }
 
         // Method to add tag to a post
@@ -348,11 +350,12 @@ namespace InkWell.Category.Service.Services
         public async Task<List<TagResponseDTO>> GetTagsByPost(int postId)
         {
             string cacheKey = $"post_tags_{postId}";
-            string cachedData = await cache.GetStringAsync(cacheKey);
+            string cachedData = null;
+            try { cachedData = await cache.GetStringAsync(cacheKey); } catch { /* Redis down */ }
 
             if (!string.IsNullOrEmpty(cachedData))
             {
-                return JsonSerializer.Deserialize<List<TagResponseDTO>>(cachedData);
+                try { return JsonSerializer.Deserialize<List<TagResponseDTO>>(cachedData); } catch { /* Corrupt cache */ }
             }
 
             List<Tag> tags = await categoryRepository.GetTagsByPostId(postId);
@@ -367,7 +370,7 @@ namespace InkWell.Category.Service.Services
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             };
-            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+            try { await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions); } catch { /* Redis down */ }
            
             return result;
         }
@@ -479,11 +482,12 @@ namespace InkWell.Category.Service.Services
         public async Task<List<CategoryResponseDTO>> GetCategoriesByPost(int postId)
         {
             string cacheKey = $"post_categories_{postId}";
-            string cachedData = await cache.GetStringAsync(cacheKey);
+            string cachedData = null;
+            try { cachedData = await cache.GetStringAsync(cacheKey); } catch { /* Redis down */ }
 
             if (!string.IsNullOrEmpty(cachedData))
             {
-                return JsonSerializer.Deserialize<List<CategoryResponseDTO>>(cachedData);
+                try { return JsonSerializer.Deserialize<List<CategoryResponseDTO>>(cachedData); } catch { /* Corrupt cache */ }
             }
 
             List<CategoryModel> categories = await categoryRepository.GetCategoriesByPostId(postId);
@@ -498,7 +502,7 @@ namespace InkWell.Category.Service.Services
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
             };
-            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+            try { await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions); } catch { /* Redis down */ }
            
             return result;
         }

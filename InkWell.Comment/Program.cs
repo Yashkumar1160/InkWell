@@ -108,7 +108,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "https://inkwell-frontend-7ntx.onrender.com")
+        policy.WithOrigins("http://localhost:4200", "https://inkwell-frontend-qv2r.onrender.com")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });

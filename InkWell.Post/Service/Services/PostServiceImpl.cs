@@ -118,11 +118,12 @@ namespace InkWell.Post.Service.Services
         public async Task<List<PostResponseDTO>> GetPublished()
         {
             string cacheKey = "published_posts";
-            string cachedData = await cache.GetStringAsync(cacheKey);
+            string cachedData = null;
+            try { cachedData = await cache.GetStringAsync(cacheKey); } catch { /* Redis down, fallback to DB */ }
 
             if (!string.IsNullOrEmpty(cachedData))
             {
-                return JsonSerializer.Deserialize<List<PostResponseDTO>>(cachedData);
+                try { return JsonSerializer.Deserialize<List<PostResponseDTO>>(cachedData); } catch { /* Corrupt cache, fallback to DB */ }
             }
 
             // Fetch directly from database if not in cache
@@ -139,7 +140,7 @@ namespace InkWell.Post.Service.Services
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
             };
-            await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions);
+            try { await cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(result), cacheOptions); } catch { /* Redis down */ }
 
             return result;
         }
@@ -234,7 +235,7 @@ namespace InkWell.Post.Service.Services
             PostModel updated = await postRepository.Update(post);
 
             // Invalidate cache since data changed
-            await cache.RemoveAsync("published_posts");
+            try { await cache.RemoveAsync("published_posts"); } catch { /* Redis down */ }
 
             return MapToDTO(updated);
         }
