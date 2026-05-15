@@ -51,5 +51,6 @@ namespace InkWell.Auth.Services.Interfaces
 
         // Delete account from database (admin only)
         Task DeleteUser(int userId);
+        Task<AuthResponseDTO> GoogleLogin(string idToken);
     }
 }

@@ -31,6 +31,13 @@ namespace InkWell.Auth.Controllers
             return Ok(result);
         }
 
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] string idToken)
+        {
+            AuthResponseDTO result = await authService.GoogleLogin(idToken);
+            return Ok(result);
+        }
+
         [HttpGet("profile")]
         [Authorize]
         public async Task<IActionResult> GetProfile()

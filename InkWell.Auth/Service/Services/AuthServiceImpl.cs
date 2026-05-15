@@ -6,6 +6,7 @@ using InkWell.Auth.Models;
 using InkWell.Auth.Repository.Interface;
 using InkWell.Auth.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
+using Google.Apis.Auth;
 
 
 namespace AuthService.Services.Service
@@ -523,6 +524,51 @@ namespace AuthService.Services.Service
             // Convert to string that angular stores
             string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenString;
+        }
+
+        public async Task<AuthResponseDTO> GoogleLogin(string idToken)
+        {
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new List<string> { configuration["Google:ClientId"] }
+                };
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(idToken, settings);
+
+                // Find user by email
+                User user = await userRepository.GetByEmail(payload.Email);
+
+                if (user == null)
+                {
+                    // Create new user for first time Google login
+                    user = new User
+                    {
+                        Email = payload.Email,
+                        Username = payload.Email.Split('@')[0] + "_" + Guid.NewGuid().ToString().Substring(0, 4),
+                        FullName = payload.Name,
+                        AvatarUrl = payload.Picture,
+                        Role = "READER",
+                        Provider = "GOOGLE",
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        PasswordHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString()) // Random password
+                    };
+
+                    user = await userRepository.Add(user);
+                }
+                else if (user.IsActive == false)
+                {
+                    throw new Exception("This account has been suspended.");
+                }
+
+                return BuildResponse(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Google authentication failed: " + ex.Message);
+            }
         }
 
 
