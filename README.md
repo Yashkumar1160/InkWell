@@ -267,4 +267,4 @@ Each service can be run independently using `dotnet run --project <ProjectName>`
 
 ---
 
-Developed with ❤️ by [Yash Kumar](https://github.com/Yashkumar1160)
+Developed by [Yash Kumar](https://github.com/Yashkumar1160)
