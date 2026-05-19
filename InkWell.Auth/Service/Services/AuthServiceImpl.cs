@@ -527,6 +527,7 @@ namespace AuthService.Services.Service
             return tokenString;
         }
 
+        // Google OAuth Login
         public async Task<AuthResponseDTO> GoogleLogin(string idToken)
         {
             try

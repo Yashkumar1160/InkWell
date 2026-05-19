@@ -101,8 +101,18 @@ namespace InkWell.Newsletter.Services.Services
 
             Subscriber saved = await subscriberRepository.Add(newSubscriber);
 
-            // send welcome email
-            await SendWelcomeEmail(saved);
+            // send welcome email in background thread to avoid blocking the UI response
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await SendWelcomeEmail(saved);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Background SMTP Error] Welcome email failed: {ex.Message}");
+                }
+            });
 
             return MapToDTO(saved);
         }
@@ -140,8 +150,18 @@ namespace InkWell.Newsletter.Services.Services
             subscriber.Status = "ACTIVE";
             await subscriberRepository.Update(subscriber);
 
-            // send welcome email
-            await SendWelcomeEmail(subscriber);
+            // send welcome email in background thread
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await SendWelcomeEmail(subscriber);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Background SMTP Error] Confirmation welcome email failed: {ex.Message}");
+                }
+            });
         }
 
         // Method to one click unsubscribe via token link in email
@@ -235,31 +255,48 @@ namespace InkWell.Newsletter.Services.Services
                 }
             }
 
-            // send email to each target subscriber
-            foreach (Subscriber subscriber in targets)
+            // Run the campaign sending in the background to prevent HTTP timeouts
+            _ = Task.Run(async () =>
             {
-                // build email body with unsubscribe link at the bottom
-                // unsubscribe link uses their unique token so no login needed
-                string unsubscribeLink = "http://localhost:4200/newsletter/unsubscribe/" + subscriber.Token;
-                string preferencesLink = "http://localhost:4200/newsletter/preferences/" + subscriber.Token;
+                // send email to each target subscriber
+                foreach (Subscriber subscriber in targets)
+                {
+                    try
+                    {
+                        // build email body with unsubscribe link at the bottom
+                        string unsubscribeLink = "http://localhost:4200/newsletter/unsubscribe/" + subscriber.Token;
+                        string preferencesLink = "http://localhost:4200/newsletter/preferences/" + subscriber.Token;
 
-                string fullBody = dto.Body
-                    + "<br><br><hr>"
-                    + "<p style='font-size:12px;color:gray;'>"
-                    + "You are receiving this because you subscribed to InkWell. "
-                    + "<a href='" + preferencesLink + "'>Manage Preferences</a> | "
-                    + "<a href='" + unsubscribeLink + "'>Unsubscribe</a>"
-                    + "</p>";
+                        string fullBody = dto.Body
+                            + "<br><br><hr>"
+                            + "<p style='font-size:12px;color:gray;'>"
+                            + "You are receiving this because you subscribed to InkWell. "
+                            + "<a href='" + preferencesLink + "'>Manage Preferences</a> | "
+                            + "<a href='" + unsubscribeLink + "'>Unsubscribe</a>"
+                            + "</p>";
 
-                await SendEmail(subscriber.Email, subscriber.FullName, dto.Subject, fullBody);
-            }
+                        await SendEmail(subscriber.Email, subscriber.FullName, dto.Subject, fullBody);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Campaign SMTP Error] Failed to send email to {subscriber.Email}: {ex.Message}");
+                    }
+                }
 
-            // Publish event for in-app notification
-            await publishEndpoint.Publish(new NewsletterPublishedEvent
-            {
-                Subject = dto.Subject,
-                Body = dto.Body,
-                SentAt = DateTime.UtcNow
+                // Publish event for in-app notification once done
+                try
+                {
+                    await publishEndpoint.Publish(new NewsletterPublishedEvent
+                    {
+                        Subject = dto.Subject,
+                        Body = dto.Body,
+                        SentAt = DateTime.UtcNow
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[Campaign Event Error] Failed to publish notification event: {ex.Message}");
+                }
             });
         }
 
@@ -268,8 +305,15 @@ namespace InkWell.Newsletter.Services.Services
             List<Subscriber> subscribers = await subscriberRepository.GetByStatus("ACTIVE");
             Console.WriteLine($"[Newsletter Service] Notifying {subscribers.Count} active subscribers about new post: {dto.Title}");
 
+            List<int> recipientIds = new List<int>();
+
             foreach (Subscriber subscriber in subscribers)
             {
+                if (subscriber.UserId != null && subscriber.UserId.Value > 0)
+                {
+                    recipientIds.Add(subscriber.UserId.Value);
+                }
+
                 Console.WriteLine($"[Newsletter Service] Sending email to: {subscriber.Email}");
                 string subject = "New Post on InkWell: " + dto.Title;
 
@@ -287,6 +331,20 @@ namespace InkWell.Newsletter.Services.Services
 
                 await SendEmail(subscriber.Email, subscriber.FullName, subject, body);
             }
+
+            // Publish event to Notification Service for targeted in-app notifications
+            if (recipientIds.Count > 0)
+            {
+                Console.WriteLine($"[Newsletter Service] Publishing SendInAppPostNotificationEvent for {recipientIds.Count} subscribers");
+                await publishEndpoint.Publish(new SendInAppPostNotificationEvent
+                {
+                    PostId = dto.PostId,
+                    Title = dto.Title,
+                    AuthorId = dto.AuthorId,
+                    RecipientIds = recipientIds
+                });
+            }
+
             Console.WriteLine($"[Newsletter Service] Finished notifying subscribers for PostId: {dto.PostId}");
         }
 
@@ -467,11 +525,10 @@ namespace InkWell.Newsletter.Services.Services
                     await client.DisconnectAsync(true);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // swallow email errors silently
-                // subscription should still work even if email fails
-                // you can add logging here later
+                Console.WriteLine($"[SMTP Connection Error] Failed to send email to {toEmail}: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
             }
         }
 

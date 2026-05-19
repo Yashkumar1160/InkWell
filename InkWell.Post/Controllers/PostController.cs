@@ -30,6 +30,7 @@ namespace InkWell.Post.Controllers
         }
 
         [HttpGet("published")]
+        // Yeh browser ko bolta hai ki is API k response ko cache nahi karna hai
         [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
         public async Task<IActionResult> GetPublished()
         {

@@ -139,7 +139,12 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<MediaDbContext>();
-    try { var databaseCreator = db.GetService<IRelationalDatabaseCreator>(); databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
+    var databaseCreator = db.GetService<IRelationalDatabaseCreator>();
+    if (!databaseCreator.Exists())
+    {
+        databaseCreator.Create();
+    }
+    try { databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
 }
 
 app.Run();

@@ -37,7 +37,9 @@ builder.Services.AddMassTransit(x =>
     // Add Consumers
     x.AddConsumer<InkWell.Notification.Messaging.Consumers.PostLikedConsumer>();
     x.AddConsumer<InkWell.Notification.Messaging.Consumers.CommentAddedConsumer>();
-    x.AddConsumer<InkWell.Notification.Messaging.Consumers.PostPublishedConsumer>();
+    // Disabled global post notifications so only subscribers get notified
+    // x.AddConsumer<InkWell.Notification.Messaging.Consumers.PostPublishedConsumer>();
+    x.AddConsumer<InkWell.Notification.Messaging.Consumers.SendInAppPostNotificationConsumer>();
     x.AddConsumer<InkWell.Notification.Messaging.Consumers.NewsletterPublishedConsumer>();
 
     x.UsingRabbitMq((context, cfg) =>
@@ -167,7 +169,12 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
-    try { var databaseCreator = db.GetService<IRelationalDatabaseCreator>(); databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
+    var databaseCreator = db.GetService<IRelationalDatabaseCreator>();
+    if (!databaseCreator.Exists())
+    {
+        databaseCreator.Create();
+    }
+    try { databaseCreator.CreateTables(); } catch { /* Tables already exist or shared DB conflict */ }
 }
 
 app.Run();
